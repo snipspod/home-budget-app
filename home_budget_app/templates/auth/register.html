@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container">
+    <div class="row justify-content-md-center">
+        <div class="col-md-5">
+            <form method="POST">
+                <div class="form-floating mb-4">
+                    <input type="text" id="name" name="name" class="form-control" placeholder="Name" required>
+                    <label for="name" class="form-label">Name</label>
+                </div>
+                <div class="form-floating mb-4">
+                    <input type="email" id="email" name="email" class="form-control" placeholder="Email" required>
+                    <label for="username" class="form-label">Email</label>
+                </div>
+                <div class="form-floating mb-4">
+                    <input type="password" id="password" name="password" class="form-control" placeholder="Password" required>
+                    <label for="password" class="form-label">Password</label>
+                </div>
+                
+                <div class="mb-4 d-grid">
+                    <input type="submit" class="btn btn-primary" value="Register">
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
