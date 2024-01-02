@@ -8,19 +8,27 @@ from flask import (
     session,
     url_for,
 )
-from home_budget_app.db import create_user
+from pymongo.errors import DuplicateKeyError
+from home_budget_app.db import create_user, get_user
+from werkzeug.security import check_password_hash, generate_password_hash
 
 bp = Blueprint("auth", __name__, url_prefix='/auth')
 
 @bp.route("/login", methods=("GET", "POST"))
 def login():
     if request.method == "POST":
-        username = request.form['username']
+        username = request.form['email']
         password = request.form['password']
-
         error = None
 
-        flash(error)
+        try:
+            get_user(username, password)
+        except Exception as e:
+            error = e
+        else:
+            return redirect(url_for('auth.login'))
+
+        flash(error, 'warning')
 
     return render_template("auth/login.html")
 
@@ -30,21 +38,16 @@ def register():
         email = request.form['email']
         password = request.form['password']
         name = request.form['name']
-        error = None    
-        if not email:
-            error = 'Email is required!'
-        elif not password:
-            error = 'Password is required!'
-        elif not name:
-            error = 'Name is required!'
+        error = None
         
         if error is None:
             try:
                 create_user(name, email, password)
-            except Exception as e:
-                error = e
+            except DuplicateKeyError:
+                error = f"User {email} already exist!"
             else:
+                flash("User successfully created!", 'success')
                 return redirect(url_for('auth.login'))
-        flash(error)
+        flash(error, 'warning')
 
     return render_template('auth/register.html')
