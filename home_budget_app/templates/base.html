@@ -3,17 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="{{ url_for('static', filename='favicon.ico') }}" rel="icon">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
-    
 
-    {% if title %}
-        <title>Flask app - {{ title }}</title>
-    {% else %}
-        <title>Flask app</title>
-    {% endif %}
+    <title>HomeBudgetApp - {% block title %}{% endblock %}</title>
 </head>
 <body>
+
+<!-- Begin navbar -->
 
     <nav class="p-3 mb-3 border-bottom">
         <div class="container" data-bs-theme="dark">
@@ -22,16 +21,45 @@
                     <img src="{{ url_for('static', filename='budget-app-logo.png') }}" alt="logo" class="bi me-2" width="40" height="32">
                 </a>
                 <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                    {% if g.user %}
                     <li>
-                        <a href="#" class="nav-link px-2 link-light">Home</a>
+                        <a href="{{ url_for('dashboard.index') }}" class="nav-link px-2 link-light">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="14" width="14" viewBox="0 0 512 512">
+                                <path class="nav-icon" d="M0 96C0 60.7 28.7 32 64 32H448c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V96zm64 64V416H224V160H64zm384 0H288V416H448V160z"/>
+                            </svg>
+                             Dashboard</a>
                     </li>
                     <li>
-                        <a href="#" class="nav-link px-2 link-light">Overview</a>
+                        <a href="#" class="nav-link px-2 link-light">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="16" width="12" viewBox="0 0 384 512">
+                                <path class="nav-icon" d="M14 2.2C22.5-1.7 32.5-.3 39.6 5.8L80 40.4 120.4 5.8c9-7.7 22.3-7.7 31.2 0L192 40.4 232.4 5.8c9-7.7 22.3-7.7 31.2 0L304 40.4 344.4 5.8c7.1-6.1 17.1-7.5 25.6-3.6s14 12.4 14 21.8V488c0 9.4-5.5 17.9-14 21.8s-18.5 2.5-25.6-3.6L304 471.6l-40.4 34.6c-9 7.7-22.3 7.7-31.2 0L192 471.6l-40.4 34.6c-9 7.7-22.3 7.7-31.2 0L80 471.6 39.6 506.2c-7.1 6.1-17.1 7.5-25.6 3.6S0 497.4 0 488V24C0 14.6 5.5 6.1 14 2.2zM96 144c-8.8 0-16 7.2-16 16s7.2 16 16 16H288c8.8 0 16-7.2 16-16s-7.2-16-16-16H96zM80 352c0 8.8 7.2 16 16 16H288c8.8 0 16-7.2 16-16s-7.2-16-16-16H96c-8.8 0-16 7.2-16 16zM96 240c-8.8 0-16 7.2-16 16s7.2 16 16 16H288c8.8 0 16-7.2 16-16s-7.2-16-16-16H96z"/>
+                            </svg>
+                             Wydatki</a>
                     </li>
                     <li>
-                        <a href="{{ url_for('dashboard.index') }}" class="nav-link px-2 link-light">Dashboard</a>
+                        <a href="#" class="nav-link px-2 link-light">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="16" width="18" viewBox="0 0 576 512">
+                                <path class="nav-icon" d="M64 64C28.7 64 0 92.7 0 128V384c0 35.3 28.7 64 64 64H512c35.3 0 64-28.7 64-64V128c0-35.3-28.7-64-64-64H64zm64 320H64V320c35.3 0 64 28.7 64 64zM64 192V128h64c0 35.3-28.7 64-64 64zM448 384c0-35.3 28.7-64 64-64v64H448zm64-192c-35.3 0-64-28.7-64-64h64v64zM288 160a96 96 0 1 1 0 192 96 96 0 1 1 0-192z"/>
+                            </svg>
+                             Konta</a>
                     </li>
+                    <li>
+                        <a href="#" class="nav-link px-2 link-light">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 512 512">
+                                <path class="nav-icon" d="M40 48C26.7 48 16 58.7 16 72v48c0 13.3 10.7 24 24 24H88c13.3 0 24-10.7 24-24V72c0-13.3-10.7-24-24-24H40zM192 64c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zM16 232v48c0 13.3 10.7 24 24 24H88c13.3 0 24-10.7 24-24V232c0-13.3-10.7-24-24-24H40c-13.3 0-24 10.7-24 24zM40 368c-13.3 0-24 10.7-24 24v48c0 13.3 10.7 24 24 24H88c13.3 0 24-10.7 24-24V392c0-13.3-10.7-24-24-24H40z"/>
+                                </svg>
+                                 Kategorie</a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-link px-2 link-light">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 512 512">
+                                <path class="nav-icon" d="M64 64c0-17.7-14.3-32-32-32S0 46.3 0 64V400c0 44.2 35.8 80 80 80H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H80c-8.8 0-16-7.2-16-16V64zm406.6 86.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L320 210.7l-57.4-57.4c-12.5-12.5-32.8-12.5-45.3 0l-112 112c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L240 221.3l57.4 57.4c12.5 12.5 32.8 12.5 45.3 0l128-128z"/>
+                                </svg>
+                                 Raporty</a>
+                    </li>
+                    {% endif %}
                 </ul>
+                
                 {% if g.user %}
                     <div class="dropdown text-end">
                         <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
@@ -47,7 +75,18 @@
                     <div class="text-end">
                         <ul class="nav">
                             <li>
-                                <a href="{{ url_for('auth.login') }}" class="nav-link link-light">Sign in</a>
+                                <a href="{{ url_for('auth.register') }}" class="nav-link link-light">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="16" width="18" viewBox="0 0 576 512">
+                                        <path class="nav-icon" d="M64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H512c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64H64zm80 256h64c44.2 0 80 35.8 80 80c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16c0-44.2 35.8-80 80-80zm-32-96a64 64 0 1 1 128 0 64 64 0 1 1 -128 0zm256-32H496c8.8 0 16 7.2 16 16s-7.2 16-16 16H368c-8.8 0-16-7.2-16-16s7.2-16 16-16zm0 64H496c8.8 0 16 7.2 16 16s-7.2 16-16 16H368c-8.8 0-16-7.2-16-16s7.2-16 16-16zm0 64H496c8.8 0 16 7.2 16 16s-7.2 16-16 16H368c-8.8 0-16-7.2-16-16s7.2-16 16-16z"/>
+                                        </svg>
+                                         Register</a>
+                            </li>
+                            <li>
+                                <a href="{{ url_for('auth.login') }}" class="nav-link link-light">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="16" width="14" viewBox="0 0 448 512">
+                                        <path class="nav-icon" d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304H178.3z"/>
+                                        </svg>
+                                         Sign in</a>
                             </li>
                         </ul>
                     </div>
@@ -56,15 +95,10 @@
         </div>
     </nav>
 
-    <!-- {% if get_flashed_messages()[0] %}
-        <div class="container">
-            <div class="row justify-content-md-center">
-                {% for message in get_flashed_messages() %}
-                    <div class="alert alert-warning col-md-5">{{ message }}</div>
-                {% endfor %}
-            </div>
-        </div>
-    {% endif %} -->
+<!-- End navbar -->
+
+
+<!-- Begin flashed messages modal -->
 
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
@@ -87,9 +121,10 @@
         {% endif %}
     {% endwith %}
 
-    {% block content %}{% endblock %}
+<!-- End flashed messages modal -->
 
-    
-    
+
+    {% block content %}{% endblock %}
+ 
 </body>
 </html>

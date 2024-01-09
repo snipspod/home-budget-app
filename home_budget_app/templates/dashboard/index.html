@@ -1,5 +1,77 @@
 {% extends 'base.html' %}
 
+{% block title %}
+  Dashboard
+{% endblock %}
+
 {% block content %}
-    <p>Hello {{ g.user['name'] }}</p>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+
+                <p>Hello {{ g.user['name'] }}</p>
+            
+            
+            
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#operAdd">
+                    Add
+                </button>
+            
+            
+                <div class="modal fade" id="operAdd" tabindex="-1" aria-labelledby="operAddLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">  
+                                <h1 class="modal-title ds-5">Add transaction</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form method="POST" action="{{ url_for('dashboard.add_single_expense') }}">
+                                    <div class="row g-3 mb-4">
+                                        <div class="col">
+                                            <label for="amount" class="form-label">Amount</label>
+                                            <input type="text" id="amount" name="amount" placeholder="0" 
+                                            pattern="(?=.*?\d)^(([1-9]\d{0,2}(\d{3})*)|\d+)?(\.\d{1,2})?$"
+                                            title="Podaj wartość całkowitą, lub po przecinku np. 0,25, 30, 21,3"
+                                            class="form-control" required>
+                                        </div>
+                                        <div class="col">
+                                            <label for="category" class="form-label">Category</label>
+                                            <select class="form-select" aria-label="Category" name="category">
+                                                {% for category in categories %}
+                                                    <option value="{{ category }}">{{ category }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row g-3 mb-4">
+                                        <div class="col">
+                                            <label for="date" class="form-label">Date</label>
+                                            <input type="date" id="date" name="date" class="form-control" required>
+                                        </div>
+                                        <div class="col">
+                                            <label for="account" class="form-label">Account</label>
+                                            <select class="form-select" aria-label="Account" name="account">
+                                                {% for account in accounts %}
+                                                    <option value="{{ account['name'] }}">{{ account['name'] }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row g-3 mb-4">
+                                        <label for="comment">Comment</label>
+                                        <input type="text" id="comment" name="comment" class="form-control">
+                                    </div>
+                                    <div class="mb-4">
+                                        <input type="submit" class="btn btn-primary" value="Add">
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 {% endblock %}
