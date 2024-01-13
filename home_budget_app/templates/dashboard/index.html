@@ -6,37 +6,44 @@
 
 {% block content %}
     <div class="container">
-        <div class="row">
-            <div class="col-12">
 
-                <p>Hello {{ g.user['name'] }}</p>
-            
-            
-            
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#operAdd">
-                    Add
+        <!-- GREETING SECTION -->
+        <div class="row my-4">
+            <div class="col-12 text-center">
+                <h2 class="h2">
+                    Cześć, {{ g.user['name'] }}!
+                </h2>
+            </div>
+        </div>
+
+        <!-- QUICK EXPENSE SECTION -->
+        <div class="row">
+            <div class="d-grid gap-2 col-12 mx-auto">
+                <!-- QUICK EXPENSE BUTTON -->
+                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#operAdd">
+                        Dodaj wydatek
                 </button>
-            
-            
+                <!-- START QUICK EXPENSE MODAL BODY -->
                 <div class="modal fade" id="operAdd" tabindex="-1" aria-labelledby="operAddLabel" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">  
-                                <h1 class="modal-title ds-5">Add transaction</h1>
+                                <h1 class="modal-title ds-5">Dodaj wydatek</h1>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
                                 <form method="POST" action="{{ url_for('dashboard.add_single_expense') }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                     <div class="row g-3 mb-4">
                                         <div class="col">
-                                            <label for="amount" class="form-label">Amount</label>
+                                            <label for="amount" class="form-label">Kwota</label>
                                             <input type="text" id="amount" name="amount" placeholder="0" 
-                                            pattern="(?=.*?\d)^(([1-9]\d{0,2}(\d{3})*)|\d+)?(\.\d{1,2})?$"
+                                            pattern="^(([1-9]\d{0,2}(\d{3})*)|\d+)?(,\d{1,2})?$"
                                             title="Podaj wartość całkowitą, lub po przecinku np. 0,25, 30, 21,3"
                                             class="form-control" required>
                                         </div>
                                         <div class="col">
-                                            <label for="category" class="form-label">Category</label>
+                                            <label for="category" class="form-label">Kategoria</label>
                                             <select class="form-select" aria-label="Category" name="category">
                                                 {% for category in categories %}
                                                     <option value="{{ category }}">{{ category }}</option>
@@ -46,11 +53,11 @@
                                     </div>
                                     <div class="row g-3 mb-4">
                                         <div class="col">
-                                            <label for="date" class="form-label">Date</label>
+                                            <label for="date" class="form-label">Data wydatku</label>
                                             <input type="date" id="date" name="date" class="form-control" required>
                                         </div>
                                         <div class="col">
-                                            <label for="account" class="form-label">Account</label>
+                                            <label for="account" class="form-label">Konto</label>
                                             <select class="form-select" aria-label="Account" name="account">
                                                 {% for account in accounts %}
                                                     <option value="{{ account['name'] }}">{{ account['name'] }}</option>
@@ -59,8 +66,8 @@
                                         </div>
                                     </div>
                                     <div class="row g-3 mb-4">
-                                        <label for="comment">Comment</label>
-                                        <input type="text" id="comment" name="comment" class="form-control">
+                                        <label for="description">Opis</label>
+                                        <input type="text" id="description" name="description" pattern="^(\S{1,100})$" title="Opis nie może być pusty i może zawierać maksymalnie 100 znaków" class="form-control">
                                     </div>
                                     <div class="mb-4">
                                         <input type="submit" class="btn btn-primary" value="Add">
@@ -70,8 +77,57 @@
                         </div>
                     </div>
                 </div>
+                <!-- END QUICK EXPENSE MODAL BODY -->
             </div>
         </div>
+
+        <!-- ACCOUNTS SECTION -->
+        <div class="row my-4">
+            <div class="col-12">
+                <h3 class="h3 mb-2">Stan kont</h3>
+                <div class="row">
+                    {% for account in accounts %}
+                    <div class="col">
+                        <div class="card text-bg-secondary mb-3 text-center mx-auto" style="max-width: 18rem;">
+                            <div class="card-header h6">{{ account['name'] }}</div>
+                            <div class="card-body">
+                            <h4 class="card-title">{{ account['current_balance'] }} zł</h5>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- LAST EXPENSES SECTION -->
+        <div class="row my-4">
+            <div class="col-12 justify-content-center">
+                <table class="table table-sm">
+                    <thead>
+                        <tr class="table-active">
+                            <th scope="col">Kwota</th>
+                            <th scope="col">Opis</th>
+                            <th scope="col">Kategoria</th>
+                            <th scope="col">Konto</th>
+                            <th scope="col">Data</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-group-divider">
+                        {% for expense in expenses %}
+                            <tr>
+                                <td>{{ expense['amount'] }} zł</td>
+                                <td>{{ expense['description'] }}</td>
+                                <td>{{ expense['category'] }}</td>
+                                <td>{{ expense['account'] }}</td>
+                                <td>{{ expense['date_at']['$date']|format_datetime }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
 
 {% endblock %}

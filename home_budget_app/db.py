@@ -1,10 +1,11 @@
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
+from pymongo import ASCENDING, DESCENDING
 import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import current_app as app
-from bson import json_util
-import json
+from home_budget_app.utils import parse_json
+
 
 
 def connect_db():
@@ -48,9 +49,10 @@ def create_user(name, email, password):
         raise ValueError(f"User {email} already exists!")
     
  
-def add_single_expense(email, amount, transactionType, date, account, category, description):
+def add_single_expense(email, amount, date, account, category, description):
     client = connect_db()
     users_collection = client.home_budget_app["Users"]
+    print(f"=========={type(amount)}")
 
     expense = {
         'description': description,
@@ -59,7 +61,7 @@ def add_single_expense(email, amount, transactionType, date, account, category, 
         'amount': amount,
         'date_at': date,
         'date_submitted': datetime.datetime.now(),
-        'type': transactionType
+        'type': 'siurek'
     }
     
     try:
@@ -119,10 +121,20 @@ def get_user_accounts(email):
         return parse_json(accounts)
     except Exception as e:
         return e
+    
+def get_user_expenses(email):
+
+    # TODO: agregacja, sortowanie wydatkow po dacie wykonania
+    try:
+        client = connect_db()
+        users_collection = client.home_budget_app["Users"]
+        
+        expenses = users_collection.find_one({'email': email},projection={'expenses': {'$slice': -5}})['expenses']
+        # client.close()
+
+        return parse_json(expenses)
+    except Exception as e:
+        return e
 
 # UTILITY METHODS
-
-    
-def parse_json(data):
-    return json.loads(json_util.dumps(data))
     

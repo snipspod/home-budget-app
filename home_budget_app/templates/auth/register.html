@@ -10,12 +10,13 @@
     <div class="row justify-content-md-center align-items-center">
         <div class="col-md-5 align-self-center">
             <form method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <div class="form-floating mb-4">
                     <input type="text" id="name" name="name" class="form-control" placeholder="Name" required>
                     <label for="name" class="form-label">Name</label>
                 </div>
                 <div class="form-floating mb-4">
-                    <input type="email" id="email" name="email" class="form-control" placeholder="Email" required>
+                    <input type="email" id="email" name="email" class="form-control" placeholder="Email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" title="Użyj poprawnego maila." required>
                     <label for="username" class="form-label">Email</label>
                 </div>
                 <div class="form-floating mb-4">

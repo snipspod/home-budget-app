@@ -60,6 +60,10 @@ def register():
                 return redirect(url_for('auth.login'))
         flash(error, 'warning')
 
+    if request.method == "GET":
+        if g.user is not None:
+            return redirect(url_for('dashboard.index'))
+
     return render_template('auth/register.html')
     
 
