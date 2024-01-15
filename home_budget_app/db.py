@@ -1,5 +1,3 @@
-from pymongo.mongo_client import MongoClient
-from pymongo.server_api import ServerApi
 from pymongo import ASCENDING, DESCENDING
 import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -7,22 +5,10 @@ from flask import current_app as app
 from home_budget_app.utils import parse_json
 
 
-
-def connect_db():
-    client = MongoClient(app.config['MONGO_URI'], server_api=ServerApi('1'))
-
-    try:
-        client.admin.command('ping')
-        print('succesfully connected to mongoDB!')
-    except Exception as e:
-        print(e)
-
-    return client
-
 def create_user(name, email, password):
-    client = connect_db()
+    DB = app.db_connection.home_budget_app
     password_hash = generate_password_hash(password)
-    users_collection = client.home_budget_app["Users"]
+    users_collection = DB["Users"]
 
     user = {
         'email': email,
@@ -35,14 +21,12 @@ def create_user(name, email, password):
             'Spożywcze', 'Dom', 'Jedzenie poza domem', 'Kosmetyki', 'Podróże', 'Rozrywka', 'Edukacja'
             ],
         'accounts': [],
-        'budgets': [],
-        'expenses': [],
+        'budgets': []
     }
 
     if users_collection.find_one({'email': email}) is None:
         try:
             users_collection.insert_one(user)
-            client.close()
         except Exception as e:
             return e
     else:
@@ -50,22 +34,22 @@ def create_user(name, email, password):
     
  
 def add_single_expense(email, amount, date, account, category, description):
-    client = connect_db()
-    users_collection = client.home_budget_app["Users"]
-    print(f"=========={type(amount)}")
+    DB = app.db_connection.home_budget_app
+    expenses_collection = DB["Expenses"]
 
     expense = {
+        'email': email,
         'description': description,
         'category': category,
         'account': account,
         'amount': amount,
         'date_at': date,
         'date_submitted': datetime.datetime.now(),
-        'type': 'siurek'
+        'type': 'none'
     }
     
     try:
-        users_collection.find_one_and_update({'email': email}, {'$push':{'expenses': expense}})
+        expenses_collection.insert_one(expense)
     except Exception as e:
         print(e)
 
@@ -74,11 +58,10 @@ def add_single_expense(email, amount, date, account, category, description):
 
 
 def get_user(email, password):
-    client = connect_db()
-    users_collection = client.home_budget_app["Users"]
+    DB = app.db_connection.home_budget_app
+    users_collection = DB["Users"]
 
     user = users_collection.find_one({'email': email})
-    client.close()
 
     if user is not None:
         if check_password_hash(user.get('password'), password) and user.get('status') == 'active':
@@ -92,49 +75,44 @@ def get_user(email, password):
         
 
 def get_user_by_email(email):
+    DB = app.db_connection.home_budget_app
     try:
-        client = connect_db()
-        users_collection = client.home_budget_app["Users"]
+        users_collection = DB["Users"]
         user = users_collection.find_one({'email': email}, projection={'password':False})
-        client.close()
         return parse_json(user)
     except Exception as e:
         return e
     
 
 def get_user_categories(email):
+    DB = app.db_connection.home_budget_app
     try:
-        client = connect_db()
-        users_collection = client.home_budget_app["Users"]
+        users_collection = DB["Users"]
         categories = users_collection.find_one({'email': email}, projection={'categories':True})['categories']
-        client.close()
         return parse_json(categories)
     except Exception as e:
         return e
     
 def get_user_accounts(email):
+    DB = app.db_connection.home_budget_app
     try:
-        client = connect_db()
-        users_collection = client.home_budget_app["Users"]
+        users_collection = DB["Users"]
         accounts = users_collection.find_one({'email': email}, projection={'accounts':True})['accounts']
-        client.close()
         return parse_json(accounts)
     except Exception as e:
         return e
     
-def get_user_expenses(email):
+def get_user_expenses(email, limit:int=0):
+    """Returns user expenses. Amount of returned documents can be limited by specifying second **parameter**."""
+
+    DB = app.db_connection.home_budget_app
 
     # TODO: agregacja, sortowanie wydatkow po dacie wykonania
     try:
-        client = connect_db()
-        users_collection = client.home_budget_app["Users"]
+        expenses_collection = DB["Expenses"]
         
-        expenses = users_collection.find_one({'email': email},projection={'expenses': {'$slice': -5}})['expenses']
-        # client.close()
+        expenses = expenses_collection.find({'email': email},limit=limit, sort=[('date_at', DESCENDING)])
 
         return parse_json(expenses)
     except Exception as e:
         return e
-
-# UTILITY METHODS
-    

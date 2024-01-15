@@ -67,7 +67,7 @@
                                     </div>
                                     <div class="row g-3 mb-4">
                                         <label for="description">Opis</label>
-                                        <input type="text" id="description" name="description" pattern="^(\S{1,100})$" title="Opis nie może być pusty i może zawierać maksymalnie 100 znaków" class="form-control">
+                                        <input type="text" id="description" name="description" pattern="^(\S| ){1,100}$" title="Opis nie może być pusty i może zawierać maksymalnie 100 znaków" class="form-control">
                                     </div>
                                     <div class="mb-4">
                                         <input type="submit" class="btn btn-primary" value="Add">
@@ -86,16 +86,20 @@
             <div class="col-12">
                 <h3 class="h3 mb-2">Stan kont</h3>
                 <div class="row">
-                    {% for account in accounts %}
-                    <div class="col">
-                        <div class="card text-bg-secondary mb-3 text-center mx-auto" style="max-width: 18rem;">
-                            <div class="card-header h6">{{ account['name'] }}</div>
-                            <div class="card-body">
-                            <h4 class="card-title">{{ account['current_balance'] }} zł</h5>
+                    {% if accounts %}
+                        {% for account in accounts %}
+                        <div class="col">
+                            <div class="card text-bg-secondary mb-3 text-center mx-auto" style="max-width: 18rem;">
+                                <div class="card-header h6">{{ account['name'] }}</div>
+                                <div class="card-body">
+                                <h4 class="card-title">{{ account['current_balance'] }} zł</h5>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    {% endfor %}
+                        {% endfor %}
+                    {% else %}
+                        <p class="fw-light">Aktualnie nie posiadasz żadnych kont.</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -103,28 +107,34 @@
         <!-- LAST EXPENSES SECTION -->
         <div class="row my-4">
             <div class="col-12 justify-content-center">
-                <table class="table table-sm">
-                    <thead>
-                        <tr class="table-active">
-                            <th scope="col">Kwota</th>
-                            <th scope="col">Opis</th>
-                            <th scope="col">Kategoria</th>
-                            <th scope="col">Konto</th>
-                            <th scope="col">Data</th>
-                        </tr>
-                    </thead>
-                    <tbody class="table-group-divider">
-                        {% for expense in expenses %}
-                            <tr>
-                                <td>{{ expense['amount'] }} zł</td>
-                                <td>{{ expense['description'] }}</td>
-                                <td>{{ expense['category'] }}</td>
-                                <td>{{ expense['account'] }}</td>
-                                <td>{{ expense['date_at']['$date']|format_datetime }}</td>
+                {% if expenses %}
+                    <table class="table table-sm">
+                        <thead>
+                            <tr class="table-active">
+                                <th scope="col">#</th>
+                                <th scope="col">Kwota</th>
+                                <th scope="col">Opis</th>
+                                <th scope="col">Kategoria</th>
+                                <th scope="col">Konto</th>
+                                <th scope="col">Data</th>
                             </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody class="table-group-divider">
+                            {% for expense in expenses %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ expense['amount'] }} zł</td>
+                                    <td>{{ expense['description'] }}</td>
+                                    <td>{{ expense['category'] }}</td>
+                                    <td>{{ expense['account'] }}</td>
+                                    <td>{{ expense['date_at']['$date']|format_datetime }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p class="fw-light">Nie dokonałeś jeszcze żadnych wydatków.</p>
+                {% endif %}
             </div>
         </div>
 

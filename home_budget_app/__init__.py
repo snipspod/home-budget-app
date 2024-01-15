@@ -2,6 +2,7 @@ import os
 from flask import Flask
 from dotenv import dotenv_values
 from flask_wtf.csrf import CSRFProtect
+from pymongo.mongo_client import MongoClient
 
 secrets = dotenv_values('.env')
 
@@ -14,16 +15,21 @@ def create_app():
         SECRET_KEY = secrets['SECRET_KEY'],
         MONGO_URI = secrets['MONGO_URI']
     )
+    with app.app_context():
+        app.db_connection = MongoClient(app.config['MONGO_URI'])
+        print('connected to db!')
 
-    
     from . import auth
     from . import dashboard
+    from . import expenses
 
     app.register_blueprint(auth.bp)
     app.register_blueprint(dashboard.bp)
+    app.register_blueprint(expenses.bp)
     
     app.add_url_rule('/', endpoint='dashboard.index')
 
+    # DATE FILTER
     @app.template_filter()
     def format_datetime(value):
         from datetime import datetime

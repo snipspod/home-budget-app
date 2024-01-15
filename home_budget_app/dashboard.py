@@ -5,9 +5,10 @@ from flask import (
     redirect,
     render_template,
     request,
-    url_for
+    url_for,
+    current_app
 )
-import datetime
+from datetime import datetime
 from home_budget_app.auth import login_required
 
 bp = Blueprint('dashboard', __name__, url_prefix='/dashboard')
@@ -19,12 +20,9 @@ def index():
     from home_budget_app.db import get_user_categories, get_user_accounts, get_user_expenses
     categories = get_user_categories(g.user['email'])
     accounts = get_user_accounts(g.user['email'])
-    expenses = get_user_expenses(g.user['email'])
+    expenses = get_user_expenses(g.user['email'], 5)
 
-    print(expenses)
-
-
-    return render_template('dashboard/index.html', categories=categories, accounts=accounts, expenses=expenses)
+    return render_template('dashboard/dashboard.html', categories=categories, accounts=accounts, expenses=expenses)
 
 @bp.route('/', methods=("POST",))
 @login_required
@@ -35,11 +33,9 @@ def add_single_expense():
     if request.method == 'POST':
         amount = float(request.form['amount'].replace(',','.'))
         category = request.form['category']
-        dateStr = request.form['date']
+        date = datetime.strptime(request.form['date'], "%Y-%m-%d")
         account = request.form['account']
-        description = request.form['description']
-
-        date = datetime.datetime.strptime(dateStr, "%Y-%m-%d")
+        description = request.form['description'].strip()
 
         error = None
 

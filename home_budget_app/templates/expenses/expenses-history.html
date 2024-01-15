@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css" />
+{% endblock %}
+
+{% block scripts %}
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>  
+    <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>  
+{% endblock %}
+
+{% block title %}
+    Historia
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+        <div class="row my-4">
+            <div class="col-12 text-center">
+                <h2 class="h2">Historia wydatków</h2>
+            </div>
+        </div>
+        <div class="row my-4">
+            <div class="col-12 justify-content-center">
+                <table class="table" id="expenses">
+                    <thead>
+                        <tr class="table-active">
+                            <th scope="col">#</th>
+                            <th scope="col">Kwota</th>
+                            <th scope="col">Opis</th>
+                            <th scope="col">Kategoria</th>
+                            <th scope="col">Konto</th>
+                            <th scope="col">Data</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-group-divider">
+                        {% for expense in expenses %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>{{ expense['amount'] }} zł</td>
+                                <td>{{ expense['description'] }}</td>
+                                <td>{{ expense['category'] }}</td>
+                                <td>{{ expense['account'] }}</td>
+                                <td>{{ expense['date_at']['$date']|format_datetime }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='expenses.js') }}"></script>
+
+{% endblock %}
