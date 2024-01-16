@@ -80,7 +80,7 @@
                             <img src="https://avatars.githubusercontent.com/u/39224570?v=4" alt="avatar" width="32" height="32" class="rounded-circle">
                         </a>
                         <ul class="dropdown-menu text-small" style>
-                            <li><a href="#" class="dropdown-item">Konto</a></li>
+                            <li><a href="{{ url_for('user_account.index') }}" class="dropdown-item">Konto</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a href="{{ url_for('auth.logout') }}" class="dropdown-item">Wyloguj</a></li>
                         </ul>

@@ -5,5 +5,30 @@
 {% endblock %}
 
 {% block content %}
-    
+    <div class="container">
+      <div class="row my-4">
+        <div class="col-12 text-center">
+          <h1 class="display-5">Cześć, {{ g.user['name'] }}!</h1>
+        </div>
+      </div>
+
+      <div class="row justify-content-center">
+        <div class="col-5 text-center">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Statystyki</h5>
+              <p class="card-text">
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item">Jesteś z nami od <span class="fw-bold text-start">{{ stats['member_from'] }}</span></li>
+                  <li class="list-group-item">W naszej aplikacji zarejestrowałeś <span class="fw-bold text-start">{{ stats['expense_count'] }}</span> wydatków!</li>
+                  <li class="list-group-item">Łączna kwota zarejestrowanych wydatków to <span class="fw-bold text-start">{{ stats['expense_sum'] }} zł!</span></li>
+                  <li class="list-group-item"><span class="fw-bold text-start">{{ stats['accounts_sum'] }} zł</span> - tyle wynosi suma pieniędzy na Twoich kontach!</li>
+                  <li class="list-group-item">Przez ostatnie 30 dni wydawałeś średnio <span class="fw-bold text-start">{{ stats['expense_avg'] }} zł</span> dziennie!</li>
+                </ul>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 {% endblock %}

@@ -58,10 +58,13 @@ def add_single_expense(email, amount, date, account, category, description):
 
 
 def get_user(email, password):
-    DB = app.db_connection.home_budget_app
-    users_collection = DB["Users"]
+    try:
+        DB = app.db_connection.home_budget_app
+        users_collection = DB["Users"]
 
-    user = users_collection.find_one({'email': email})
+        user = users_collection.find_one({'email': email})
+    except Exception as e:
+        return e
 
     if user is not None:
         if check_password_hash(user.get('password'), password) and user.get('status') == 'active':
@@ -75,8 +78,8 @@ def get_user(email, password):
         
 
 def get_user_by_email(email):
-    DB = app.db_connection.home_budget_app
     try:
+        DB = app.db_connection.home_budget_app
         users_collection = DB["Users"]
         user = users_collection.find_one({'email': email}, projection={'password':False})
         return parse_json(user)
@@ -85,8 +88,8 @@ def get_user_by_email(email):
     
 
 def get_user_categories(email):
-    DB = app.db_connection.home_budget_app
     try:
+        DB = app.db_connection.home_budget_app
         users_collection = DB["Users"]
         categories = users_collection.find_one({'email': email}, projection={'categories':True})['categories']
         return parse_json(categories)
@@ -94,8 +97,8 @@ def get_user_categories(email):
         return e
     
 def get_user_accounts(email):
-    DB = app.db_connection.home_budget_app
     try:
+        DB = app.db_connection.home_budget_app
         users_collection = DB["Users"]
         accounts = users_collection.find_one({'email': email}, projection={'accounts':True})['accounts']
         return parse_json(accounts)
@@ -105,14 +108,43 @@ def get_user_accounts(email):
 def get_user_expenses(email, limit:int=0):
     """Returns user expenses. Amount of returned documents can be limited by specifying second **parameter**."""
 
-    DB = app.db_connection.home_budget_app
-
-    # TODO: agregacja, sortowanie wydatkow po dacie wykonania
+    
     try:
+        DB = app.db_connection.home_budget_app
         expenses_collection = DB["Expenses"]
         
         expenses = expenses_collection.find({'email': email},limit=limit, sort=[('date_at', DESCENDING)])
 
         return parse_json(expenses)
+    except Exception as e:
+        return e
+    
+def get_user_statistics(email):
+    try:
+        DB = app.db_connection.home_budget_app
+        users_collection = DB["Users"]
+        expenses_collection = DB["Expenses"]
+
+        member_from = users_collection.find_one({'email': email}, projection={'created_at': True})['created_at']
+
+        expense_count = expenses_collection.count_documents({'email': email})
+
+        expense_sum = expenses_collection.aggregate([{'$match': {'email': email}}, {'$group': {'_id': None, 'sum': {'$sum': '$amount'}}}])
+        expense_sum = parse_json(expense_sum)[0]['sum']
+
+        account_sum = users_collection.find({'email': email}, {'sum': {'$sum': '$accounts.current_balance'}})
+        account_sum = parse_json(account_sum)[0]['sum']
+
+        #TODO: kalkulowanie sredniej wydatków za ostatnie 30 dni
+
+        return {
+            'member_from': member_from,
+            'expense_count': expense_count,
+            'expense_sum': round(expense_sum, 2),
+            'accounts_sum': account_sum,
+            'expense_avg': 2137
+        }
+
+
     except Exception as e:
         return e
