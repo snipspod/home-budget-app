@@ -1,34 +1,40 @@
 {% extends 'base.html' %}
 
 {% block title %}
-  Register
+  Rejestracja
 {% endblock %}
 
 {% block content %}
 
-<div class="container h-100 align-items-center">
+<div class="container">
+    <div class="row my-3 text-center">
+        <div class="col-12">
+          <h1 class="display-1">Home Budget App</h1>
+        </div>
+    </div>
     <div class="row justify-content-md-center align-items-center">
-        <div class="col-md-5 align-self-center">
+        <div class="col-md-5">
+            <h4 class="h4 text-center mb-4 fw-light text-success">Zarejestruj się</h4>
             <form method="POST">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <div class="form-floating mb-4">
-                    <input type="text" id="name" name="name" class="form-control" placeholder="Name" required>
-                    <label for="name" class="form-label">Name</label>
+                    <input type="text" id="name" name="name" class="form-control" placeholder="Imię" required>
+                    <label for="name" class="form-label">Imię</label>
                 </div>
                 <div class="form-floating mb-4">
                     <input type="email" id="email" name="email" class="form-control" placeholder="Email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" title="Użyj poprawnego maila." required>
                     <label for="username" class="form-label">Email</label>
                 </div>
                 <div class="form-floating mb-4">
-                    <input type="password" id="password" name="password" class="form-control" placeholder="Password" required>
-                    <label for="password" class="form-label">Password</label>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="Hasło" required>
+                    <label for="password" class="form-label">Hasło</label>
                 </div>
                 
                 <div class="mb-4 d-grid">
-                    <input type="submit" class="btn btn-primary" value="Register">
+                    <input type="submit" class="btn btn-primary" value="Zarejestruj">
                 </div>
                 <div class="text-center">
-                    <p>Already have account? <a href="{{ url_for('auth.login') }}">Sign in</a></p>
+                    <p>Masz już konto? <a href="{{ url_for('auth.login') }}">Zaloguj się!</a></p>
                 </div>
             </form>
         </div>

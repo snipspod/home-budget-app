@@ -10,9 +10,9 @@
         <!-- GREETING SECTION -->
         <div class="row my-4">
             <div class="col-12 text-center">
-                <h2 class="h2">
+                <h1 class="display-3">
                     Cześć, {{ g.user['name'] }}!
-                </h2>
+                </h1>
             </div>
         </div>
 
@@ -20,8 +20,8 @@
         <div class="row">
             <div class="d-grid gap-2 col-12 mx-auto">
                 <!-- QUICK EXPENSE BUTTON -->
-                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#operAdd">
-                        Dodaj wydatek
+                <button type="button" class="btn btn-lg btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#operAdd">
+                        <span>Dodaj wydatek</span>
                 </button>
                 <!-- START QUICK EXPENSE MODAL BODY -->
                 <div class="modal fade" id="operAdd" tabindex="-1" aria-labelledby="operAddLabel" aria-hidden="true">
@@ -84,7 +84,7 @@
         <!-- ACCOUNTS SECTION -->
         <div class="row my-4">
             <div class="col-12">
-                <h3 class="h3 mb-2">Stan kont</h3>
+                <h1 class="display-6 mb-3">Stan kont</h1>
                 <div class="row">
                     {% if accounts %}
                         {% for account in accounts %}

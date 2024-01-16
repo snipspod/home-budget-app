@@ -17,7 +17,9 @@ bp = Blueprint('expenses', __name__, url_prefix='/expenses')
 def index():
     return render_template('expenses/expenses-index.html')
 
+
 @bp.route('/history', methods=('GET',))
+@login_required
 def expense_history():
         from home_budget_app.db import get_user_expenses
         
