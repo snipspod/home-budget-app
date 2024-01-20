@@ -3,6 +3,7 @@ import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import current_app as app
 from home_budget_app.utils import parse_json
+from bson import ObjectId
 
 
 def create_user(name, email, password):
@@ -50,32 +51,76 @@ def add_single_expense(email, amount, date, account, category, description):
     
     try:
         expenses_collection.insert_one(expense)
+        return {'result': 'success',
+                'message': 'Pomyślnie dodano wydatek!'}
     except Exception as e:
-        print(e)
+        return {'result': 'danger',
+                'message': e}
 
 
-# GET METHODS
+#! UPDATE METHODS
+        
+
+def update_password(email, old_password, new_password):
+    try:
+        DB = app.db_connection.home_budget_app
+        users_collection = DB["Users"]
+
+        current_password = users_collection.find_one({'email': email}, projection={'password':True})['password']
+
+        if check_password_hash(current_password, old_password):
+            users_collection.find_one_and_update({'email': email}, {'$set': {'password': generate_password_hash(new_password)}})
+            return {'result': 'success',
+                    'message': 'Pomyślnie zmieniono hasło!'}
+        else:
+            return {'result': 'danger',
+                    'message': 'Podane obecne hasło nie jest poprawne!'}
+        
+    except Exception as e:
+        return {'result': 'danger',
+                'message': e}
+    
+
+def update_expense(expense_id, amount, category, date, account, description):
+    try:
+        DB = app.db_connection.home_budget_app
+        expenses_collection = DB["Expenses"]
+
+        expense_id = ObjectId(expense_id)
+
+        expenses_collection.find_one_and_update({'_id': expense_id}, {'$set': {'amount': amount, 'category': category, 'date': date, 'account': account, 'description': description}})
+
+        return {'result': 'success',
+                'message': 'Pomyślnie zaktualizowano wydatek!'}
+    except Exception as e:
+        return {'result': 'danger',
+                'message': e} 
 
 
-def get_user(email, password):
+
+
+#! GET METHODS
+
+
+def authenticate_user(email, password):
     try:
         DB = app.db_connection.home_budget_app
         users_collection = DB["Users"]
 
         user = users_collection.find_one({'email': email})
+
+        if user is not None:
+            if check_password_hash(user.get('password'), password) and user.get('status') == 'active':
+                return parse_json(user)
+            elif user.get('status') != 'active':
+                raise ValueError(f'User is not active!')
+            else:
+                raise ValueError(f"Wrong password!")
+        else:
+            raise ValueError(f"User {email} does not exists!")
     except Exception as e:
         return e
 
-    if user is not None:
-        if check_password_hash(user.get('password'), password) and user.get('status') == 'active':
-            return parse_json(user)
-        elif user.get('status') != 'active':
-            raise ValueError(f'User is not active!')
-        else:
-            raise ValueError(f"Wrong password!")
-    else:
-        raise ValueError(f"User {email} does not exists!")
-        
 
 def get_user_by_email(email):
     try:

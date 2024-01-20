@@ -16,8 +16,12 @@ def create_app():
         MONGO_URI = secrets['MONGO_URI']
     )
     with app.app_context():
-        app.db_connection = MongoClient(app.config['MONGO_URI'])
-        print('connected to db!')
+        try:
+            app.db_connection = MongoClient(app.config['MONGO_URI'])
+            print('connected to db!')
+        except Exception as e:
+            print(e)
+            return e
 
     from . import auth
     from . import dashboard

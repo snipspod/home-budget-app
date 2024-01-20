@@ -37,21 +37,15 @@ def add_single_expense():
         account = request.form['account']
         description = request.form['description'].strip()
 
-        error = None
-
-        try:
-            add_single_expense(
+        db_result = add_single_expense(
                 email = g.user['email'],
                 amount = amount,
                 date = date,
                 account = account,
                 category = category,
                 description = description
-            )
-        except Exception as e:
-            error = e
+        )
+        flash(db_result['message'], db_result['result'])
+        return redirect(back)
 
-        if error is None:
-            return redirect(back)
-
-        flash(error, 'warning')
+        

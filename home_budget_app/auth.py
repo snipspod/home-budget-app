@@ -9,20 +9,22 @@ from flask import (
     session,
     url_for,
 )
-from home_budget_app.db import create_user, get_user, get_user_by_email
+from home_budget_app.db import create_user, get_user_by_email
 
 bp = Blueprint("auth", __name__, url_prefix='/auth')
 
 @bp.route("/login", methods=("GET", "POST"))
 def login():
     if request.method == "POST":
+        from home_budget_app.db import authenticate_user
+
         username = request.form['email']
         password = request.form['password']
         error = None
         user = None
 
         try:
-            user = get_user(username, password)
+            user = authenticate_user(username, password)
         except Exception as e:
             error = e
 
