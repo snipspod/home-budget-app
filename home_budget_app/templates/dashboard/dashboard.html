@@ -127,7 +127,7 @@
                                     <td>{{ expense['description'] }}</td>
                                     <td>{{ expense['category'] }}</td>
                                     <td>{{ expense['account'] }}</td>
-                                    <td>{{ expense['date_at']['$date']|format_datetime }}</td>
+                                    <td>{{ expense['date_at']['$date']|format_date_from_string }}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>

@@ -92,6 +92,26 @@ def update_expense(expense_id, amount, category, date, account, description):
 
         return {'result': 'success',
                 'message': 'Pomyślnie zaktualizowano wydatek!'}
+    
+    except Exception as e:
+        return {'result': 'danger',
+                'message': e} 
+    
+
+#! DELETE METHODS
+    
+def delete_expense(expense_id):
+    try:
+        DB = app.db_connection.home_budget_app
+        expenses_collection = DB["Expenses"]
+
+        expense_id = ObjectId(expense_id)
+
+        expenses_collection.find_one_and_delete({'_id': expense_id})
+
+        return {'result': 'success',
+                'message': 'Pomyślnie usunięto wydatek!'}
+    
     except Exception as e:
         return {'result': 'danger',
                 'message': e} 
@@ -108,16 +128,17 @@ def authenticate_user(email, password):
         users_collection = DB["Users"]
 
         user = users_collection.find_one({'email': email})
+        print('hejka autentykacja =================================')
 
         if user is not None:
             if check_password_hash(user.get('password'), password) and user.get('status') == 'active':
                 return parse_json(user)
             elif user.get('status') != 'active':
-                raise ValueError(f'User is not active!')
+                return Exception(f'User is not active!')
             else:
-                raise ValueError(f"Wrong password!")
+                return Exception(f"Wrong password!")
         else:
-            raise ValueError(f"User {email} does not exists!")
+            return Exception(f"User {email} does not exists!")
     except Exception as e:
         return e
 
@@ -174,11 +195,22 @@ def get_user_statistics(email):
 
         expense_count = expenses_collection.count_documents({'email': email})
 
-        expense_sum = expenses_collection.aggregate([{'$match': {'email': email}}, {'$group': {'_id': None, 'sum': {'$sum': '$amount'}}}])
-        expense_sum = parse_json(expense_sum)[0]['sum']
+        if expense_count != 0:
+            expense_sum = expenses_collection.aggregate([{'$match': {'email': email}}, {'$group': {'_id': None, 'sum': {'$sum': '$amount'}}}])
+            expense_sum = parse_json(expense_sum)[0]['sum']
+        else:
+            expense_sum = 0
 
-        account_sum = users_collection.find({'email': email}, {'sum': {'$sum': '$accounts.current_balance'}})
-        account_sum = parse_json(account_sum)[0]['sum']
+
+        account_count = users_collection.aggregate([{'$match': {'email': email}}, {'$project': {'count': {'$size': '$accounts'}}}])
+        account_count = parse_json(account_count)[0]['count']
+
+        if account_count != 0:
+            account_sum = users_collection.find({'email': email}, {'sum': {'$sum': '$accounts.current_balance'}})
+            account_sum = parse_json(account_sum)[0]['sum']
+        else:
+            account_sum = None
+
 
         #TODO: kalkulowanie sredniej wydatków za ostatnie 30 dni
 
@@ -186,6 +218,7 @@ def get_user_statistics(email):
             'member_from': member_from,
             'expense_count': expense_count,
             'expense_sum': round(expense_sum, 2),
+            'account_count': account_count,
             'accounts_sum': account_sum,
             'expense_avg': 2137
         }

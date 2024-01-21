@@ -20,20 +20,15 @@ def login():
 
         username = request.form['email']
         password = request.form['password']
-        error = None
-        user = None
 
-        try:
-            user = authenticate_user(username, password)
-        except Exception as e:
-            error = e
+        user = authenticate_user(username, password)
 
-        if error is None:
+        if type(user) is not Exception:
             session.clear()
             session['user_email'] = user.get('email')
             return redirect(url_for('dashboard.index'))
-        
-        flash(error, 'warning')
+        else:
+            flash(user, 'warning')
 
     if request.method == "GET":
         if g.user is not None:

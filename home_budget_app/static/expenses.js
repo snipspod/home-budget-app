@@ -1,5 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
-    let table = new DataTable('#expenses');
+    let table = new DataTable('#expenses', {
+        columnDefs: [
+            { orderable: false, targets: 6 }
+        ]
+    })
 } ,false)
 
 let tableRows = document.getElementsByClassName('expenseTableRow')
@@ -8,8 +12,8 @@ let category = document.querySelector('#category')
 let date = document.querySelector('#date')
 let account = document.querySelector('#account')
 let description = document.querySelector('#description')
-let expenseId = document.querySelector('#expense_id')
-
+let expenseId = document.querySelectorAll('#expense_id')
+let btnDeleteExpense = document.querySelector('#btnDeleteExpense')
 
 
 Array.from(tableRows).forEach(row => {
@@ -19,11 +23,15 @@ Array.from(tableRows).forEach(row => {
         date.value = row.dataset.date
         account.value = row.dataset.account
         description.value = row.dataset.description
-        expenseId.value = row.dataset.expenseid
+        Array.from(expenseId).forEach(field => {
+            field.value = row.dataset.expenseid
+        })
     })
 });
 
-// console.log(data)
-
-// let modal = document.getElementById('modalEdit')
-// let amount
+btnDeleteExpense.addEventListener('click', () => {
+    fetch('/expenses/delete', {
+        method: 'POST',
+        body: expenseid=expenseId
+    })
+})

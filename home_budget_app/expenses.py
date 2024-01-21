@@ -38,6 +38,8 @@ def update_expense():
       
     back = request.referrer
 
+    # print('triggered updating')
+
     expense_id = request.form['expense_id']
     amount = float(request.form['amount'].replace(',','.'))
     category = request.form['category']
@@ -49,5 +51,24 @@ def update_expense():
 
     flash(db_result['message'], db_result['result'])
 
-    print(expense_id)
+    return redirect(back)
+
+# TODO: nie działa formularz drugi na stronie
+
+
+@bp.route('/', methods=('POST',))
+@login_required
+def delete_expense():
+
+    from home_budget_app.db import delete_expense
+    back = request.referrer
+
+    print('triggered deleting')
+
+    expense_id = request.form['expense_id']
+
+    db_result = delete_expense(expense_id)
+
+    flash(db_result['message'], db_result['result'])
+
     return redirect(back)

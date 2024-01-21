@@ -3,6 +3,7 @@ from flask import Flask
 from dotenv import dotenv_values
 from flask_wtf.csrf import CSRFProtect
 from pymongo.mongo_client import MongoClient
+import locale
 
 secrets = dotenv_values('.env')
 
@@ -35,12 +36,20 @@ def create_app():
     
     app.add_url_rule('/', endpoint='dashboard.index')
 
+
+    locale.setlocale(locale.LC_TIME, "pl_PL.utf8")
     # DATE FILTER
     @app.template_filter()
-    def format_datetime(value):
+    def format_date_from_string(value):
         from datetime import datetime
         date = datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ").strftime("%Y-%m-%d")
         return date
-
+    
+    @app.template_filter()
+    def format_datetime(value):
+        from datetime import datetime
+        date = value.strftime("%d %B %Y")
+        print(date)
+        return date
 
     return app
