@@ -63,7 +63,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
-                        <form method="POST" action="{{ url_for('expenses.update_expense') }}">
+                        <form method="POST" action="{{ url_for('expenses.update_expense') }}" name="update_expense">
                             <input type="hidden" name="expense_id" id="expense_id">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <div class="row g-3 mb-4">
@@ -121,12 +121,17 @@
                     <h4 class="text-warning">Czy na pewno chcesz usunąć ten wydatek?</h4>
                 </div>
                 <div class="modal-footer justify-content-between">
-                    <button class="btn btn-danger" id="btnDeleteExpense">Usuń</button>
+                    <form method="POST" action="{{ url_for('expenses.delete_expense') }}" name="delete_expense" id="delete_expense">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" form="delete_expense">
+                        <input type="hidden" name="expense_id" id="expense_id" form="delete_expense">
+                        <button class="btn btn-danger" id="btnDeleteExpense" form="delete_expense" type="submit">Usuń</button>
+                    </form>
                     <button class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
                 </div>
             </div>
         </div>
     </div>
+
 
     <script src="{{ url_for('static', filename='expenses.js') }}"></script>
 

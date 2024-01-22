@@ -28,10 +28,17 @@ def create_user(name, email, password):
     if users_collection.find_one({'email': email}) is None:
         try:
             users_collection.insert_one(user)
+            return {'result': 'success',
+                    'message': {'header': 'Udało się!',
+                                'message': 'Użytkownik pomyślnie zarejestrowany!'}}
         except Exception as e:
-            return e
+            return {'result': 'danger',
+                    'message': {'header': 'Nieznany błąd',
+                                'message': e}}
     else:
-        raise ValueError(f"User {email} already exists!")
+        return {'result': 'danger',
+                'message': {'header': 'Niepowodzenie',
+                            'body': 'Użytkownik z takim mailem już istnieje!'}}
     
  
 def add_single_expense(email, amount, date, account, category, description):
@@ -52,10 +59,12 @@ def add_single_expense(email, amount, date, account, category, description):
     try:
         expenses_collection.insert_one(expense)
         return {'result': 'success',
-                'message': 'Pomyślnie dodano wydatek!'}
+                'message': {'header': 'Wohoo!',
+                            'body': 'Pomyślnie dodano wydatek!'}}
     except Exception as e:
         return {'result': 'danger',
-                'message': e}
+                'message': {'header': 'Nieznany błąd',
+                            'body': e }}
 
 
 #! UPDATE METHODS
@@ -71,14 +80,17 @@ def update_password(email, old_password, new_password):
         if check_password_hash(current_password, old_password):
             users_collection.find_one_and_update({'email': email}, {'$set': {'password': generate_password_hash(new_password)}})
             return {'result': 'success',
-                    'message': 'Pomyślnie zmieniono hasło!'}
+                    'message': {'header': 'Udało się!',
+                                'body': 'Pomyślnie zmieniono hasło!'}}
         else:
             return {'result': 'danger',
-                    'message': 'Podane obecne hasło nie jest poprawne!'}
+                    'message': {'header': 'Nie udało się!',
+                                'body': 'Podane obecne hasło nie jest poprawne!'}}
         
     except Exception as e:
         return {'result': 'danger',
-                'message': e}
+                'message': {'header': 'Nieznany błąd!',
+                            'body': e}}
     
 
 def update_expense(expense_id, amount, category, date, account, description):
@@ -91,11 +103,13 @@ def update_expense(expense_id, amount, category, date, account, description):
         expenses_collection.find_one_and_update({'_id': expense_id}, {'$set': {'amount': amount, 'category': category, 'date': date, 'account': account, 'description': description}})
 
         return {'result': 'success',
-                'message': 'Pomyślnie zaktualizowano wydatek!'}
+                'message': {'header': 'Wohoo!',
+                            'body': 'Pomyślnie zaktualizowano wydatek!'}}
     
     except Exception as e:
         return {'result': 'danger',
-                'message': e} 
+                'message': {'header': 'Nieznany błąd!',
+                            'body': e}} 
     
 
 #! DELETE METHODS
@@ -110,11 +124,13 @@ def delete_expense(expense_id):
         expenses_collection.find_one_and_delete({'_id': expense_id})
 
         return {'result': 'success',
-                'message': 'Pomyślnie usunięto wydatek!'}
+                'message': {'header': 'Wohoo!',
+                            'body': 'Pomyślnie usunięto wydatek!'}}
     
     except Exception as e:
         return {'result': 'danger',
-                'message': e} 
+                'message': {'header': 'Nieznany błąd!',
+                            'body': e}} 
 
 
 
@@ -128,19 +144,29 @@ def authenticate_user(email, password):
         users_collection = DB["Users"]
 
         user = users_collection.find_one({'email': email})
-        print('hejka autentykacja =================================')
 
         if user is not None:
             if check_password_hash(user.get('password'), password) and user.get('status') == 'active':
-                return parse_json(user)
+                return {'result': 'success',
+                        'user': parse_json(user),
+                        'message': {'header': 'Dzień dobry!',
+                                    'body': 'Zalogowano pomyślnie :)'}}
             elif user.get('status') != 'active':
-                return Exception(f'User is not active!')
+                return {'result': 'danger',
+                        'message': {'header': 'Oops :(',
+                                    'body': 'Użytkownik nie jest aktywny.'}}
             else:
-                return Exception(f"Wrong password!")
+                return {'result': 'danger',
+                        'message': {'header': 'Oops :(',
+                                    'body': 'Podane hasło nie jest poprawne.'}}
         else:
-            return Exception(f"User {email} does not exists!")
+            return {'result': 'danger',
+                    'message': {'header': 'Oops :(',
+                                'body': 'Użytkownik o podanym mailu nie istnieje.'}} 
     except Exception as e:
-        return e
+        return {'result': 'danger',
+                'message': {'header': 'Nieznany błąd!',
+                            'body': e}}
 
 
 def get_user_by_email(email):

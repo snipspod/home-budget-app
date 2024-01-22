@@ -29,7 +29,7 @@ def expense_history():
 
         return render_template('expenses/expenses_history.html', expenses=expenses, categories=categories, accounts=accounts)
 
-@bp.route('/', methods=('POST',))
+@bp.route('/update', methods=('POST',))
 @login_required
 def update_expense():
 
@@ -37,6 +37,7 @@ def update_expense():
     from home_budget_app.db import update_expense
       
     back = request.referrer
+    print(request.headers)
 
     # print('triggered updating')
 
@@ -56,14 +57,12 @@ def update_expense():
 # TODO: nie działa formularz drugi na stronie
 
 
-@bp.route('/', methods=('POST',))
+@bp.route('/delete', methods=('POST',))
 @login_required
 def delete_expense():
 
     from home_budget_app.db import delete_expense
     back = request.referrer
-
-    print('triggered deleting')
 
     expense_id = request.form['expense_id']
 

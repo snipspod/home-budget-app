@@ -37,7 +37,7 @@ def create_app():
     app.add_url_rule('/', endpoint='dashboard.index')
 
 
-    locale.setlocale(locale.LC_TIME, "pl_PL.utf8")
+    
     # DATE FILTER
     @app.template_filter()
     def format_date_from_string(value):
@@ -48,8 +48,28 @@ def create_app():
     @app.template_filter()
     def format_datetime(value):
         from datetime import datetime
+
+        lookup_table = {
+            'styczeĹ„': 'stycznia',
+            'luty': 'lutego',
+            'marzec': 'marca',
+            'kwiecieĹ„': 'kwietnia',
+            'maj': 'maja',
+            'czerwiec': 'czerwca',
+            'lipiec': 'lipca',
+            'sierpieĹ„': 'sierpnia',
+            'wrzesieĹ„': 'września',
+            'paĹşdziernik': 'października',
+            'listopad': 'listopada',
+            'grudzieĹ„': 'grudnia'
+        }
+
+        locale.setlocale(locale.LC_TIME, "pl_PL.utf8")
         date = value.strftime("%d %B %Y")
-        print(date)
+
+        for key in lookup_table:
+            date = date.replace(key, lookup_table[key])
+
         return date
 
     return app

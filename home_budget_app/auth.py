@@ -21,14 +21,17 @@ def login():
         username = request.form['email']
         password = request.form['password']
 
-        user = authenticate_user(username, password)
+        db_result = authenticate_user(username, password)
 
-        if type(user) is not Exception:
+        if 'user' in db_result:
             session.clear()
-            session['user_email'] = user.get('email')
+            session['user_email'] = db_result['user'].get('email')
+            flash(db_result['message'], db_result['result'])
             return redirect(url_for('dashboard.index'))
         else:
-            flash(user, 'warning')
+            flash(db_result['message'], db_result['result'])
+            # return redirect(url_for('auth.login'))
+            
 
     if request.method == "GET":
         if g.user is not None:
@@ -45,17 +48,14 @@ def register():
         email = request.form['email']
         password = request.form['password']
         name = request.form['name']
-        error = None
-        
-        if error is None:
-            try:
-                create_user(name, email, password)
-            except Exception as e:
-                error = e
-            else:
-                flash("User successfully created!", 'success')
-                return redirect(url_for('auth.login'))
-        flash(error, 'warning')
+
+        db_result = create_user(name, email, password)
+            
+        flash(db_result['message'], db_result['result'])
+        if db_result['result'] == 'success':
+            return redirect(url_for('auth.login'))
+        else:
+            return redirect(url_for('auth.register'))
 
     if request.method == "GET":
         if g.user is not None:

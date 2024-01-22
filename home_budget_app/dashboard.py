@@ -21,7 +21,6 @@ def index():
     categories = get_user_categories(g.user['email'])
     accounts = get_user_accounts(g.user['email'])
     expenses = get_user_expenses(g.user['email'], 5)
-    print(expenses)
     return render_template('dashboard/dashboard.html', categories=categories, accounts=accounts, expenses=expenses)
 
 @bp.route('/', methods=("POST",))

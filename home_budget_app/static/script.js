@@ -1,4 +1,3 @@
-let modal = new bootstrap.Modal(document.getElementById('modal'), {})
-if (modal != null) {
-    modal.show()
-}
+let toastLiveExample = document.getElementById('liveToast')
+let toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
+toastBootstrap.show()

@@ -13,7 +13,8 @@ let date = document.querySelector('#date')
 let account = document.querySelector('#account')
 let description = document.querySelector('#description')
 let expenseId = document.querySelectorAll('#expense_id')
-let btnDeleteExpense = document.querySelector('#btnDeleteExpense')
+// let btnDeleteExpense = document.querySelector('#btnDeleteExpense')
+
 
 
 Array.from(tableRows).forEach(row => {
@@ -29,9 +30,14 @@ Array.from(tableRows).forEach(row => {
     })
 });
 
-btnDeleteExpense.addEventListener('click', () => {
-    fetch('/expenses/delete', {
-        method: 'POST',
-        body: expenseid=expenseId
-    })
-})
+// btnDeleteExpense.addEventListener('click', () => {
+//     fetch('/expenses/delete', {
+//         method: 'DELETE',
+//         headers: {
+//             'Content-Type': 'application/x-www-form-urlencoded'
+//         },
+//         'redirect': 'follow'
+//     })
+// })
+
+
