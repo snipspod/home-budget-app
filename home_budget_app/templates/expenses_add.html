@@ -1,0 +1,82 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    Dodaj wydatki
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+        <div class="row my-4">
+            <div class="col-12 text-center">
+                <h1 class="display-5">Dodaj wydatki</h1>
+            </div>
+        </div>
+        <div class="row my-4">
+            <div class="col-12 justify-content-center">
+                <form method="POST" action="{{ url_for('expenses.add_multiple_expenses') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <table id="addExpensesTable" class="table table-hover">
+                        <thead>
+                            <tr class="table-active">
+                                <th scope="col">#</th>
+                                <th scope="col">Kwota</th>
+                                <th scope="col">Opis</th>
+                                <th scope="col">Kategoria</th>
+                                <th scope="col">Konto</th>
+                                <th scope="col">Data</th>
+                                <th scope="col">
+                                    <button type="button" class="btn btn-sm btnAddRow">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
+                                            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
+                                          </svg>
+                                    </button>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="addExpensesTableBody" class="table-group-divider">
+                            <tr>
+                                <td class="align-middle">1</td>
+                                <td>
+                                    <input type="text" id="amount" name="amount" placeholder="0" 
+                                                pattern="^(([1-9]\d{0,2}(\d{3})*)|\d+)?(,\d{1,2})?$"
+                                                title="Podaj wartość całkowitą, lub po przecinku np. 0,25, 30, 21,3"
+                                                class="form-control" required>
+                                </td>
+                                <td>
+                                    <input type="text" id="description" name="description" pattern="^(\S| ){1,100}$" title="Opis nie może być pusty i może zawierać maksymalnie 100 znaków" class="form-control">
+                                </td>
+                                <td>
+                                    <select class="form-select" aria-label="Category" name="category">
+                                        {% for category in categories %}
+                                            <option value="{{ category }}">{{ category }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                                <td>
+                                    <select class="form-select" aria-label="Account" name="account">
+                                        {% for account in accounts %}
+                                            <option value="{{ account['name'] }}">{{ account['name'] }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="date" id="date" name="date" value="{{ date }}" class="form-control" required>
+                                </td>
+                                <td class="align-middle">
+                                    <button type="button" id="btnDelRow" class="btn btn-close"></button>
+                                </td>
+                            </tr>
+                            
+                        </tbody>
+                    </table>
+                    <button type="button" class="btn btn-secondary btnAddRow">Dodaj wiersz</button>
+                    <button type="submit" class="btn btn-success" >Zapisz wydatki</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/expenses.js') }}"></script>
+
+{% endblock %}

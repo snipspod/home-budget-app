@@ -45,7 +45,7 @@
                                     <td>{{ expense['category'] }}</td>
                                     <td>{{ expense['account'] }}</td>
                                     <td>{{ expense['date_at']['$date']|format_date_from_string }}</td>  
-                                    <td><button type="buton" class="btn-close" data-bs-toggle="modal" data-bs-target="#modalConfirm"></button></td>
+                                    <td><button type="button" class="btn-close" data-bs-toggle="modal" data-bs-target="#modalConfirm"></button></td>
                                 </tr>
                         {% endfor %}
                     </tbody>
