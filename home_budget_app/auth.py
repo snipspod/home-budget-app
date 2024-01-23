@@ -38,7 +38,7 @@ def login():
             return redirect(url_for('dashboard.index'))
 
 
-    return render_template("auth/login.html")
+    return render_template("login.html")
 
 
 
@@ -61,7 +61,7 @@ def register():
         if g.user is not None:
             return redirect(url_for('dashboard.index'))
 
-    return render_template('auth/register.html')
+    return render_template('register.html')
     
 
 @bp.route('/logout')

@@ -15,7 +15,7 @@ bp = Blueprint('expenses', __name__, url_prefix='/expenses')
 @bp.route('/', methods=('GET',))
 @login_required
 def index():
-    return render_template('expenses/expenses.html')
+    return render_template('expenses.html')
 
 
 @bp.route('/history', methods=('GET',))
@@ -27,7 +27,7 @@ def expense_history():
         categories = get_user_categories(g.user['email'])
         accounts = get_user_accounts(g.user['email'])
 
-        return render_template('expenses/expenses_history.html', expenses=expenses, categories=categories, accounts=accounts)
+        return render_template('expenses_history.html', expenses=expenses, categories=categories, accounts=accounts)
 
 @bp.route('/update', methods=('POST',))
 @login_required

@@ -21,7 +21,8 @@ def index():
     categories = get_user_categories(g.user['email'])
     accounts = get_user_accounts(g.user['email'])
     expenses = get_user_expenses(g.user['email'], 5)
-    return render_template('dashboard/dashboard.html', categories=categories, accounts=accounts, expenses=expenses)
+    date = datetime.today().strftime('%Y-%m-%d')
+    return render_template('dashboard.html', categories=categories, accounts=accounts, expenses=expenses, date=date)
 
 @bp.route('/', methods=("POST",))
 @login_required

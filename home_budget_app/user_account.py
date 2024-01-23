@@ -19,7 +19,7 @@ def index():
 
     stats = get_user_statistics(g.user['email'])
     
-    return render_template('user_account/user_account.html', stats=stats)
+    return render_template('user_account.html', stats=stats)
 
 @bp.route('/', methods=('POST',))
 @login_required

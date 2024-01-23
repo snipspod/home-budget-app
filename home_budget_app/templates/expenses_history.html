@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'layout.html' %}
 
 {% block stylesheets %}
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css" />
@@ -133,6 +133,6 @@
     </div>
 
 
-    <script src="{{ url_for('static', filename='expenses.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/expenses.js') }}"></script>
 
 {% endblock %}
