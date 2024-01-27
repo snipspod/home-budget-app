@@ -67,6 +67,23 @@ def add_single_expense(email, amount, date, account, category, description):
                             'body': e }}
     
 
+def add_category(email, category):
+    try:
+        DB = app.db_connection.home_budget_app
+        users_collection = DB['Users']
+
+        users_collection.update_one({'email': email}, {'$push': {'category': category}})
+
+        return {'result': 'success',
+                'message': {'header': 'Wohoo!',
+                            'body': 'Pomyślnie dodano kategorię!'}}
+    
+    except Exception as e:
+        return {'result': 'danger',
+                'message': {'header': 'Nieznany błąd!',
+                            'body': e}} 
+    
+
 #! UPDATE METHODS
         
 
@@ -112,6 +129,26 @@ def update_expense(expense_id, amount, category, date, account, description):
                             'body': e}} 
     
 
+def update_category(email, category_old, category_new):
+    try:
+        DB = app.db_connection.home_budget_app
+        expenses_collection = DB['Expenses']
+        users_collection = DB['Users']
+
+        users_collection.update_one({'email': email, 'categories': category_old}, {'$set': {'categories.$': category_new}})
+
+        expenses_collection.update_many({'email': email, 'category': category_old}, {'$set': {'category': category_new}})
+
+        return {'result': 'success',
+                'message': {'header': 'Wohoo!',
+                            'body': 'Pomyślnie zaktualizowano kategorię!'}}
+
+    except Exception as e:
+        return {'result': 'danger',
+                'message': {'header': 'Nieznany błąd!',
+                            'body': e}}
+    
+
 #! DELETE METHODS
     
 def delete_expense(expense_id):
@@ -133,6 +170,23 @@ def delete_expense(expense_id):
                             'body': e}} 
 
 
+def delete_category(email, category):
+    try:
+        DB = app.db_connection.home_budget_app
+        users_collection = DB['Users']
+        expenses_collection = DB['Expenses']
+
+        users_collection.update_one({'email': email}, {'$pull': {'categories': category}})
+        expenses_collection.delete_many({'email': email, 'category': category})
+
+        return {'result': 'success',
+                'message': {'header': 'Wohoo!',
+                            'body': 'Pomyślnie usunięto kategorię!'}}
+    
+    except Exception as e:
+        return {'result': 'danger',
+                'message': {'header': 'Nieznany błąd!',
+                            'body': e}} 
 
 
 #! GET METHODS
