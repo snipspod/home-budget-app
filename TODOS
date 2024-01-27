@@ -1,0 +1,4 @@
+PANEL DODAWANIA WYDATKÓW MASOWO:
+- dopisać do db metode add_many_expenses, tak aby zwracala success dopiero po dodaniu pomyslnie wszystkich wydatkow
+- poprawić JSa - aktualizoawnie numerów porzadkowych w tabeli po dodaniu/usunieciu (albo zrezygnowac z nich calkowicie)
+- poprawić ikone plusa w naglowku tabeli

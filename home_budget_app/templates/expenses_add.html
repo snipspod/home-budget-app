@@ -38,13 +38,13 @@
                             <tr>
                                 <td class="align-middle">1</td>
                                 <td>
-                                    <input type="text" id="amount" name="amount" placeholder="0" 
+                                    <input type="text" name="amount" placeholder="0" 
                                                 pattern="^(([1-9]\d{0,2}(\d{3})*)|\d+)?(,\d{1,2})?$"
                                                 title="Podaj wartość całkowitą, lub po przecinku np. 0,25, 30, 21,3"
                                                 class="form-control" required>
                                 </td>
                                 <td>
-                                    <input type="text" id="description" name="description" pattern="^(\S| ){1,100}$" title="Opis nie może być pusty i może zawierać maksymalnie 100 znaków" class="form-control">
+                                    <input type="text" name="description" pattern="^(\S| ){1,100}$" title="Opis nie może być pusty i może zawierać maksymalnie 100 znaków" class="form-control">
                                 </td>
                                 <td>
                                     <select class="form-select" aria-label="Category" name="category">
@@ -61,10 +61,10 @@
                                     </select>
                                 </td>
                                 <td>
-                                    <input type="date" id="date" name="date" value="{{ date }}" class="form-control" required>
+                                    <input type="date" name="date" value="{{ date }}" class="form-control" required>
                                 </td>
                                 <td class="align-middle">
-                                    <button type="button" id="btnDelRow" class="btn btn-close"></button>
+                                    <button type="button" class="btn btn-close btnDelRow"></button>
                                 </td>
                             </tr>
                             
@@ -77,6 +77,13 @@
         </div>
     </div>
 
-    <script src="{{ url_for('static', filename='js/expenses.js') }}"></script>
+    
+    <script type="text/javascript" defer>
+        let _categories = `{{ categories|tojson }}`
+        let _accounts = `{{ accounts|tojson }}`
+        let _date = `{{ date|tojson }}`
+    </script>
+    <script src="{{ url_for('static', filename='js/expenses_add.js') }}" defer></script>
+    
 
 {% endblock %}

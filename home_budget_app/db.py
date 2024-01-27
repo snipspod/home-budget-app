@@ -65,7 +65,7 @@ def add_single_expense(email, amount, date, account, category, description):
         return {'result': 'danger',
                 'message': {'header': 'Nieznany błąd',
                             'body': e }}
-
+    
 
 #! UPDATE METHODS
         
