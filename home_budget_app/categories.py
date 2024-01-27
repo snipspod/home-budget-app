@@ -47,3 +47,17 @@ def update_category():
 
     flash(db_result['message'], db_result['result'])
     return redirect(back)
+
+@bp.route('/add', methods=('POST',))
+@login_required
+def add_category():
+    back = request.referrer
+    from home_budget_app.db import add_category
+
+    category = request.form['category_name']
+    print(category)
+
+    db_result = add_category(g.user['email'], category)
+
+    flash(db_result['message'], db_result['result'])
+    return redirect(back)

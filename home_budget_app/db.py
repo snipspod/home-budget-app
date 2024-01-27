@@ -72,7 +72,7 @@ def add_category(email, category):
         DB = app.db_connection.home_budget_app
         users_collection = DB['Users']
 
-        users_collection.update_one({'email': email}, {'$push': {'category': category}})
+        users_collection.update_one({'email': email}, {'$push': {'categories': category}})
 
         return {'result': 'success',
                 'message': {'header': 'Wohoo!',
