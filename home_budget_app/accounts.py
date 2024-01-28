@@ -18,6 +18,7 @@ def index():
     from home_budget_app.db import get_user_accounts
 
     accounts = get_user_accounts(g.user['email'])
+    print(accounts)
 
     return render_template('accounts.html', accounts=accounts)
 
@@ -30,5 +31,11 @@ def update_account():
 @bp.route('/delete-account', methods=('POST',))
 @login_required
 def delete_account():
+    back = request.referrer
+    return redirect(back)
+
+@bp.route('/add-account', methods=('POST',))
+@login_required
+def add_account():
     back = request.referrer
     return redirect(back)

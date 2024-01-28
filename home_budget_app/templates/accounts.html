@@ -6,32 +6,103 @@
 
 {% block content %}
     <div class="container">
-        <div class="row">
-            <div class="col-12">tutaj dodawanie konta</div>
+
+        <div class="row my-4">
+            <div class="col-12 text-center">
+                <h1 class="display-5">
+                    Zarządzaj swoimi kontami
+                </h1>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-10 d-grid mx-auto">
+                <button type="button" class="btn btn-lg btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalAdd">
+                    <span>Dodaj nowe konto</span>
+                </button>
+            </div>
         </div>
         <div class="row">
             <div class="col-12">
+                <h1 class="display-6 mb-3">Twoje konta</h1>
                 <div class="d-flex flex-wrap justify-content-around">
-                    {% for account in accounts %}
-                        <div class="card col-lg-3 m-2">
-                            <div class="card-header h5">
-                                {{ account['name'] }}
-                            </div>
-                            <div class="card-body">
-                                <h6 class="fw-light">Aktualny stan:</h6>
-                                <h5 class="text-center mb-3">{{ account['current_balance'] }}zł</h5>
-                                <div class="row">
-                                    <div class="col d-grid">
-                                        <button type="button" data-bs-toggle="modal" data-bs-target="#modalUpdate" data-bs-account="{{ account['name'] }}" class="btn btn-outline-secondary btn-sm">Edytuj</button>
-                                    </div>
-                                    <div class="col d-grid">
-                                        <button type="button" data-bs-toggle="modal" data-bs-target="#modalDelete" data-bs-account="{{ account['name'] }}" class="btn btn-outline-danger btn-sm">Usuń</button>
+                    {% if accounts %}
+                        {% for account in accounts %}
+                            <div class="card col-lg-3 m-2">
+                                <div class="card-header h5">
+                                    {{ account['name'] }}
+                                </div>
+                                <div class="card-body">
+                                    <h6 class="fw-light">Aktualny stan:</h6>
+                                    <h5 class="text-center mb-3">{{ account['current_balance'] }}zł</h5>
+                                    <div class="row">
+                                        <div class="col d-grid">
+                                            <button type="button" data-bs-toggle="modal" data-bs-target="#modalUpdate" data-account="{{ account['name'] }}" data-balance="{{ account['current_balance'] }}" class="btn btn-outline-secondary btn-sm">Edytuj</button>
+                                        </div>
+                                        <div class="col d-grid">
+                                            <button type="button" data-bs-toggle="modal" data-bs-target="#modalDelete" data-account="{{ account['name'] }}" class="btn btn-outline-danger btn-sm">Usuń</button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    {% endfor %}
+                        {% endfor %}
+                    {% else %}
+                        <p class="fw-light">Nie posiadasz jeszcze żadnych kont!</p>
+                    {% endif %}
                     </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD ACCOUNT MODAL -->
+    <div class="modal fade" id="modalAdd" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title">Dodaj konto</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" name="add_account" id="add_account" action="{{ url_for('accounts.add_account') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" form="add_account">
+                        <div class="mb-3">
+                            <label for="account_name" class="form-label">Nazwa</label>
+                            <input type="text" form="add_account" name="account_name" id="account_name" value="" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label for="balance">Początkowy stan konta</label>
+                            <input type="text" form="add_account" name="balance" id="balance" class="form-control mb-3" pattern="^(([1-9]\d{0,2}(\d{3})*)|\d+)?(,\d{1,2})?$" title="Podaj wartość całkowitą, lub po przecinku np. 0,25, 30, 21,3" >
+                        </div>
+                        <div class="accordion mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch" name="is_cyclical" id="id_cyclical" form="add_account" id="isCyclicalSwitch" data-bs-toggle="collapse" data-bs-target="#cyclical" aria-controls="cyclical">
+                                <label class="form-check-label" for="isCyclicalSwitch">Cykliczny wpływ na konto</label>
+                            </div>
+                            <div id="cyclical" class="accordion-collapse collapse">
+                                <div class="accordion-body row">
+                                    <div class="col-6">
+                                        <label for="cyclical_amount">Kwota wpływu</label>
+                                        <input type="text" form="add_account" name="cyclical_amount" id="cyclical_amount" class="form-control mb-3" pattern="^(([1-9]\d{0,2}(\d{3})*)|\d+)?(,\d{1,2})?$" title="Podaj wartość całkowitą, lub po przecinku np. 0,25, 30, 21,3" >
+                                    </div>
+                                    <div class="col-6">
+                                        <label for="cyclical_date">Dzień wpływu</label>
+                                        <select form="add_account" name="cyclical_date" id="cyclical_date" class="form-select mb-3">
+                                            {% for n in range(28) %}
+                                                {% if loop.first %}
+                                                    <option selected value="{{ n + 1 }}">{{ n + 1 }}</option>
+                                                {% else %}
+                                                    <option value="{{ n + 1 }}">{{ n + 1 }}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                              </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-success" form="update_account">Dodaj konto</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -111,4 +182,6 @@
             </div>
         </div>
     </div>
+
+    <script src="{{ url_for('static', filename='js/accounts.js') }}" defer></script>
 {% endblock %}
