@@ -46,8 +46,24 @@ def expense_add():
 
 @bp.route('/submit-expenses', methods=('POST',))
 def add_multiple_expenses():
-     back = request.referrer
-     return redirect(back)
+    from home_budget_app.db import add_single_expense
+    from datetime import datetime
+    back = request.referrer
+
+
+    for amount, description, category, account, date in zip(request.form.getlist('amount'),
+                                                            request.form.getlist('description'),
+                                                            request.form.getlist('category'),
+                                                            request.form.getlist('account'),
+                                                            request.form.getlist('date')):
+          amount = float(amount.replace(',','.'))
+          description = description.strip()
+          date = datetime.strptime(date, "%Y-%m-%d")
+          add_single_expense(g.user['email'], amount, date, account, category, description)
+          print (amount, description, category, account, date)
+
+
+    return redirect(back)
 
 
 @bp.route('/update', methods=('POST',))

@@ -28,11 +28,13 @@ def create_app():
     from . import dashboard
     from . import expenses
     from . import user_account
+    from . import categories
 
     app.register_blueprint(auth.bp)
     app.register_blueprint(dashboard.bp)
     app.register_blueprint(expenses.bp)
     app.register_blueprint(user_account.bp)
+    app.register_blueprint(categories.bp)
     
     app.add_url_rule('/', endpoint='dashboard.index')
 

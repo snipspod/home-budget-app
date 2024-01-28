@@ -1,0 +1,104 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    Categories
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+
+        <div class="row my-4">
+            <div class="col-12 text-center">
+                <h1 class="display-5">
+                    Zarządzaj kategoriami wydatków
+                </h1>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-7 text-center">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Dodaj kategorię</h5>
+                        <p>Dodana kategoria będzie widoczna we wszystkich panelach.</p>
+                        <form method="POST" action="{{ url_for('categories.add_category') }}" class="justify-content-center w-50 mx-auto">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <div class="form-floating mb-4">
+                                <input type="text" id="category_name" name="category_name" class="form-control" placeholder="Nazwa">
+                                <label for="category_name" id="name">Nazwa</label>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-success">Zapisz</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5 text-center">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Twoje kategorie</h5>
+                        <div class="group">
+                            {% for category in categories %}
+                            <div class="mb-3 d-grid gap-2 col-6 mx-auto dropend">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    {{ category }}
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#modalUpdate" data-bs-category="{{ category }}">Edytuj</button></li>
+                                    <li><button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#modalDelete" data-bs-category="{{ category }}">Usuń</button></li>
+                                </ul>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DELETE CONFIRMATION MODAL -->
+    <div class="modal fade" id="modalDelete" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <h5 class="text-warning">Czy na pewno chcesz usunąć kategorię <span></span>?</h4>
+                    <p>Spowoduje to również usunięcie wszystkich wydatków, przypisanych do tej kategorii.</p>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <form method="POST" name="delete_category" id="delete_category" action="{{ url_for('categories.delete_category') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" form="delete_category">
+                        <input type="hidden" name="category" id="category" form="delete_category">
+                        <button class="btn btn-danger" type="submit" form="delete_category">Usuń</button>
+                    </form>
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- EDIT CATEGORY MODAL -->
+    <div class="modal fade" id="modalUpdate" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title">Edytuj kategorię</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Zmiana nazwy kategorii wpłynie na wszystkie wydatki przypisane do tej kategorii.</p>
+                    <form method="POST" name="update_category" id="update_category" action="{{ url_for('categories.update_category') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" form="update_category">
+                        <input type="hidden" name="category_old" id="category_old" form="update_category">
+                        <label for="category_new" class="form-label">Nazwa</label>
+                        <input type="text" form="update_category" name="category_new" id="category_new" value="" class="form-control mb-3" required>
+                        <button type="submit" class="btn btn-success" form="update_category">Zapisz</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/categories.js') }}" defer></script>
+{% endblock %}
