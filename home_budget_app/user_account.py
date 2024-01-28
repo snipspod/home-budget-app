@@ -21,7 +21,7 @@ def index():
     
     return render_template('user_account.html', stats=stats)
 
-@bp.route('/', methods=('POST',))
+@bp.route('/change-password', methods=('POST',))
 @login_required
 def change_password():
     from home_budget_app.db import update_password
@@ -33,9 +33,26 @@ def change_password():
 
         update_msg = update_password(g.user['email'], old_password, new_password)
 
-        print(update_msg)
-
         flash(update_msg['message'], update_msg['result'])
         return redirect(back)
+    
+
+@bp.route('/delete-account', methods=('POST',))
+@login_required
+def delete_account():
+    from home_budget_app.db import delete_account
+
+    back = request.referrer
+    password = request.form['password']
+
+    db_result = delete_account(g.user['email'], password)
+
+    flash(db_result['message'], db_result['result'])
+
+    if db_result['result'] == 'success':
+        return redirect(url_for('auth.login'))
+    else:
+        return redirect(back)
+
 
 

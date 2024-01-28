@@ -95,6 +95,12 @@ def update_password(email, old_password, new_password):
         current_password = users_collection.find_one({'email': email}, projection={'password':True})['password']
 
         if check_password_hash(current_password, old_password):
+
+            if old_password == new_password:
+                return {'result': 'danger',
+                        'message': {'header': 'Nie udało się!',
+                                    'body': 'Stare i nowe hasło muszą się od siebie różnić!'}}
+        
             users_collection.find_one_and_update({'email': email}, {'$set': {'password': generate_password_hash(new_password)}})
             return {'result': 'success',
                     'message': {'header': 'Udało się!',
@@ -102,7 +108,7 @@ def update_password(email, old_password, new_password):
         else:
             return {'result': 'danger',
                     'message': {'header': 'Nie udało się!',
-                                'body': 'Podane obecne hasło nie jest poprawne!'}}
+                                'body': 'Podane stare hasło nie jest poprawne!'}}
         
     except Exception as e:
         return {'result': 'danger',
@@ -150,6 +156,31 @@ def update_category(email, category_old, category_new):
     
 
 #! DELETE METHODS
+    
+def delete_account(email, password):
+    try:
+        DB = app.db_connection.home_budget_app
+        users_collection = DB['Users']
+        expenses_collection = DB['Expenses']
+
+        current_password = users_collection.find_one({'email': email}, projection={'password':True})['password']
+
+        if check_password_hash(current_password, password):
+            users_collection.find_one_and_delete({'email': email})
+            expenses_collection.delete_many({'email': email})
+
+            return {'result': 'success',
+                    'message': {'header': 'Konto usunięte pomyślnie!',
+                                'body': f'Pomyślnie usunięto konto {email}!'}}
+        else:
+            return {'result': 'danger',
+                    'message': {'header': 'Niepoprawne hasło!',
+                                'body': 'Podałeś niepoprawne hasło!'}}
+    except Exception as e:
+        return {'result': 'danger',
+                'message': {'header': 'Nieznany błąd!',
+                            'body': e}} 
+
     
 def delete_expense(expense_id):
     try:

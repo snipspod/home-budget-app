@@ -12,12 +12,6 @@ from home_budget_app.auth import login_required
 
 bp = Blueprint('expenses', __name__, url_prefix='/expenses')
 
-@bp.route('/', methods=('GET',))
-@login_required
-def index():
-    return render_template('expenses.html')
-
-
 @bp.route('/history', methods=('GET',))
 @login_required
 def expense_history():

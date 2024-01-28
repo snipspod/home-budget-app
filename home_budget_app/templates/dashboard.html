@@ -88,11 +88,11 @@
                 <div class="row">
                     {% if accounts %}
                         {% for account in accounts %}
-                        <div class="col">
+                        <div class="col-lg-3">
                             <div class="card text-bg-secondary mb-3 text-center mx-auto" style="max-width: 18rem;">
                                 <div class="card-header h6">{{ account['name'] }}</div>
                                 <div class="card-body">
-                                <h4 class="card-title">{{ account['current_balance'] }} zł</h5>
+                                    <h4 class="card-title">{{ account['current_balance'] }} zł</h5>
                                 </div>
                             </div>
                         </div>
@@ -107,6 +107,7 @@
         <!-- LAST EXPENSES SECTION -->
         <div class="row my-4">
             <div class="col-12 justify-content-center">
+                <h1 class="display-6 mb-3">Twoje ostatnie wydatki</h1>
                 {% if expenses %}
                     <table class="table table-sm">
                         <thead>
