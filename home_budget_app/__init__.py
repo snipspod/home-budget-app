@@ -40,7 +40,6 @@ def create_app():
     
     app.add_url_rule('/', endpoint='dashboard.index')
 
-
     
     # DATE FILTER
     @app.template_filter()

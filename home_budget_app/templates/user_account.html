@@ -37,7 +37,7 @@
           <div class="card">
             <div class="card-body">
               <h4 class="card-title mb-4">Zmiana hasła</h4>
-              <form method="POST" class="row justify-content-center" action="{{ url_for('user_account.change_password') }}" name="change-password" id="chage-password">
+              <form method="POST" class="row justify-content-center" action="{{ url_for('user_account.change_password') }}" name="change-password" id="change-password">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                   <div class="form-floating mb-4 col-8">
                     <input type="password" id="old_password" name="old_password" class="form-control" placeholder="Stare hasło" form="change-password" required/>

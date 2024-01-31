@@ -68,9 +68,6 @@ def update_expense():
     from home_budget_app.db import update_expense
       
     back = request.referrer
-    print(request.headers)
-
-    # print('triggered updating')
 
     expense_id = request.form['expense_id']
     amount = float(request.form['amount'].replace(',','.'))

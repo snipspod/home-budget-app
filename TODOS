@@ -7,6 +7,8 @@ DODAWANIE WYDATKÓW:
 - dodać sprawdzanie środków na koncie, i jeśli brakuje, to wywalić błąd
 
 PANEL KONTA:
-- dodać obsługę na backu
 - stworzyć nowe pole w obiekcie 'account' - wymyslić jak palić cyklicznie dodawanie srodkow do konta (dodatkowe pole 'last_added' i porownywanie z obecna data, palone za kazdym logowaniem uzytkownika do systemu)
 
+REJESTRACJA:
+- walidacja hasla
+- dodac potwierdzenie hasla

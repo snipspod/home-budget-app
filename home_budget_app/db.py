@@ -20,9 +20,7 @@ def create_user(name, email, password):
         'status': 'active',
         'categories': [
             'Spożywcze', 'Dom', 'Jedzenie poza domem', 'Kosmetyki', 'Podróże', 'Rozrywka', 'Edukacja'
-            ],
-        'accounts': [],
-        'budgets': []
+            ]
     }
 
     if users_collection.find_one({'email': email}) is None:
@@ -53,7 +51,6 @@ def add_single_expense(email, amount, date, account, category, description):
         'amount': amount,
         'date_at': date,
         'date_submitted': datetime.datetime.now(),
-        'type': 'none'
     }
     
     try:
@@ -77,6 +74,49 @@ def add_category(email, category):
         return {'result': 'success',
                 'message': {'header': 'Wohoo!',
                             'body': 'Pomyślnie dodano kategorię!'}}
+    
+    except Exception as e:
+        return {'result': 'danger',
+                'message': {'header': 'Nieznany błąd!',
+                            'body': e}} 
+    
+
+def add_account(email, account_name, start_balance, income_amount = False, income_day = False):
+    try:
+        DB = app.db_connection.home_budget_app
+        accounts_collection = DB['Accounts']
+
+        if accounts_collection.find_one({'email': email, 'name': account_name}):
+            return {'result': 'danger',
+                'message': {'header': 'Nie udało się.',
+                            'body': 'Konto o podanej nazwie istnieje już na Twoim koncie. Spróbuj ponownie, używając innej nazwy.'}}
+        
+        if income_amount or income_day:
+            account = {
+                'email': email,
+                'name': account_name,
+                'balance': start_balance,
+                'income_active': True,
+                'income': income_amount,
+                'income_day': income_day,
+                'last_income_date': datetime.datetime.now()
+            }
+            accounts_collection.insert_one(account)
+        else:
+            account = {
+                'email': email,
+                'name': account_name,
+                'balance': start_balance,
+                'income_active': False,
+                'income': 0,
+                'income_day': 0,
+                'last_income_date': datetime.datetime.now()
+            }
+            accounts_collection.insert_one(account)
+        
+        return {'result': 'success',
+                'message': {'header': 'Wohoo!',
+                            'body': 'Pomyślnie dodano konto!'}}
     
     except Exception as e:
         return {'result': 'danger',
@@ -123,7 +163,7 @@ def update_expense(expense_id, amount, category, date, account, description):
 
         expense_id = ObjectId(expense_id)
 
-        expenses_collection.find_one_and_update({'_id': expense_id}, {'$set': {'amount': amount, 'category': category, 'date': date, 'account': account, 'description': description}})
+        expenses_collection.find_one_and_update({'_id': expense_id}, {'$set': {'amount': amount, 'category': category, 'date_at': date, 'account': account, 'description': description}})
 
         return {'result': 'success',
                 'message': {'header': 'Wohoo!',
@@ -155,9 +195,34 @@ def update_category(email, category_old, category_new):
                             'body': e}}
     
 
+def update_account(email, old_account_name, new_account_name, balance, income_amount = False, income_day = False):
+    try:
+        DB = app.db_connection.home_budget_app
+        accounts_collection = DB['Accounts']
+
+        if new_account_name != old_account_name and accounts_collection.find_one({'email': email, 'name': new_account_name}):
+            return {'result': 'danger',
+                'message': {'header': 'Nie udało się.',
+                            'body': 'Konto o podanej nazwie istnieje już na Twoim koncie. Spróbuj ponownie, używając innej nazwy.'}}
+        
+        if income_amount or income_day:
+            accounts_collection.update_one({'email': email, 'name': old_account_name}, {'$set': {'name': new_account_name, 'balance': balance, 'income_active': True, 'income': income_amount, 'income_day': income_day}})
+        else:
+            accounts_collection.update_one({'email': email, 'name': old_account_name}, {'$set': {'name': new_account_name, 'balance': balance, 'income_active': False, 'income': 0, 'income_day': '0'}})
+        
+        return {'result': 'success',
+                'message': {'header': 'Wohoo!',
+                            'body': 'Pomyślnie dodano konto!'}}
+    
+    except Exception as e:
+        return {'result': 'danger',
+                'message': {'header': 'Nieznany błąd!',
+                            'body': e}} 
+    
+
 #! DELETE METHODS
     
-def delete_account(email, password):
+def delete_user_account(email, password):
     try:
         DB = app.db_connection.home_budget_app
         users_collection = DB['Users']
@@ -218,6 +283,23 @@ def delete_category(email, category):
         return {'result': 'danger',
                 'message': {'header': 'Nieznany błąd!',
                             'body': e}} 
+    
+
+def delete_account(email, account_name):
+    try:
+        DB = app.db_connection.home_budget_app
+        accounts_collection = DB['Accounts']
+
+        accounts_collection.delete_one({'email': email, 'name': account_name})
+        
+        return {'result': 'success',
+                'message': {'header': 'Powodzenie!',
+                            'body': 'Pomyślnie usunięto konto!'}}
+    
+    except Exception as e:
+        return {'result': 'danger',
+                'message': {'header': 'Nieznany błąd!',
+                            'body': e}}
 
 
 #! GET METHODS
@@ -276,15 +358,14 @@ def get_user_categories(email):
 def get_user_accounts(email):
     try:
         DB = app.db_connection.home_budget_app
-        users_collection = DB["Users"]
-        accounts = users_collection.find_one({'email': email}, projection={'accounts':True})['accounts']
+        accounts_collection = DB["Accounts"]
+        accounts = accounts_collection.find({'email': email}, projection={'balance':True, 'name': True, 'income_active': True, 'income': True, 'income_day': True})
         return parse_json(accounts)
     except Exception as e:
         return e
     
 def get_user_expenses(email, limit:int=0):
     """Returns user expenses. Amount of returned documents can be limited by specifying second **parameter**."""
-
     
     try:
         DB = app.db_connection.home_budget_app
@@ -313,14 +394,16 @@ def get_user_statistics(email):
             expense_sum = 0
 
 
-        account_count = users_collection.aggregate([{'$match': {'email': email}}, {'$project': {'count': {'$size': '$accounts'}}}])
-        account_count = parse_json(account_count)[0]['count']
+        # ! DO PRZEPISANIA NA NOWĄ KOLEKCJĘ ACCOUNTS
 
-        if account_count != 0:
-            account_sum = users_collection.find({'email': email}, {'sum': {'$sum': '$accounts.current_balance'}})
-            account_sum = parse_json(account_sum)[0]['sum']
-        else:
-            account_sum = None
+        # account_count = users_collection.aggregate([{'$match': {'email': email}}, {'$project': {'count': {'$size': '$accounts'}}}])
+        # account_count = parse_json(account_count)[0]['count']
+
+        # if account_count != 0:
+        #     account_sum = users_collection.find({'email': email}, {'sum': {'$sum': '$accounts.current_balance'}})
+        #     account_sum = parse_json(account_sum)[0]['sum']
+        # else:
+        #     account_sum = None
 
 
         #TODO: kalkulowanie sredniej wydatków za ostatnie 30 dni
@@ -329,9 +412,9 @@ def get_user_statistics(email):
             'member_from': member_from,
             'expense_count': expense_count,
             'expense_sum': round(expense_sum, 2),
-            'account_count': account_count,
-            'accounts_sum': account_sum,
-            'expense_avg': 2137
+            'account_count': 0,
+            'accounts_sum': 0,
+            'expense_avg': 0
         }
 
 

@@ -40,12 +40,12 @@ def change_password():
 @bp.route('/delete-account', methods=('POST',))
 @login_required
 def delete_account():
-    from home_budget_app.db import delete_account
+    from home_budget_app.db import delete_user_account
 
     back = request.referrer
     password = request.form['password']
 
-    db_result = delete_account(g.user['email'], password)
+    db_result = delete_user_account(g.user['email'], password)
 
     flash(db_result['message'], db_result['result'])
 
