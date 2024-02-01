@@ -1,5 +1,6 @@
 from pymongo import ASCENDING, DESCENDING
-import datetime
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import current_app as app
 from home_budget_app.utils import parse_json
@@ -15,8 +16,8 @@ def create_user(name, email, password):
         'email': email,
         'password': password_hash,
         'name': name,
-        'created_at': datetime.datetime.now(),
-        'updated_at': datetime.datetime.now(),
+        'created_at': datetime.now(),
+        'updated_at': datetime.now(),
         'status': 'active',
         'categories': [
             'Spożywcze', 'Dom', 'Jedzenie poza domem', 'Kosmetyki', 'Podróże', 'Rozrywka', 'Edukacja'
@@ -50,7 +51,7 @@ def add_single_expense(email, amount, date, account, category, description):
         'account': account,
         'amount': amount,
         'date_at': date,
-        'date_submitted': datetime.datetime.now(),
+        'date_submitted': datetime.now(),
     }
     
     try:
@@ -81,7 +82,7 @@ def add_category(email, category):
                             'body': e}} 
     
 
-def add_account(email, account_name, start_balance, income_amount = False, income_day = False):
+def add_account(email, account_name, start_balance, cyclical,income_amount, income_day):
     try:
         DB = app.db_connection.home_budget_app
         accounts_collection = DB['Accounts']
@@ -91,28 +92,20 @@ def add_account(email, account_name, start_balance, income_amount = False, incom
                 'message': {'header': 'Nie udało się.',
                             'body': 'Konto o podanej nazwie istnieje już na Twoim koncie. Spróbuj ponownie, używając innej nazwy.'}}
         
-        if income_amount or income_day:
-            account = {
-                'email': email,
-                'name': account_name,
-                'balance': start_balance,
-                'income_active': True,
-                'income': income_amount,
-                'income_day': income_day,
-                'last_income_date': datetime.datetime.now()
-            }
-            accounts_collection.insert_one(account)
-        else:
-            account = {
-                'email': email,
-                'name': account_name,
-                'balance': start_balance,
-                'income_active': False,
-                'income': 0,
-                'income_day': 0,
-                'last_income_date': datetime.datetime.now()
-            }
-            accounts_collection.insert_one(account)
+        next_income_date = datetime(datetime.now().year, datetime.now().month, int(income_day))
+
+        if not next_income_date.day > datetime.now().day:
+            next_income_date = next_income_date + relativedelta(months=1)
+
+        account = {
+            'email': email,
+            'name': account_name,
+            'balance': start_balance,
+            'income_active': cyclical,
+            'income': income_amount,
+            'next_income_date': next_income_date
+        }
+        accounts_collection.insert_one(account)
         
         return {'result': 'success',
                 'message': {'header': 'Wohoo!',
@@ -195,7 +188,7 @@ def update_category(email, category_old, category_new):
                             'body': e}}
     
 
-def update_account(email, old_account_name, new_account_name, balance, income_amount = False, income_day = False):
+def update_account(email, old_account_name, new_account_name, balance, cyclical, income_amount = False, income_day = False):
     try:
         DB = app.db_connection.home_budget_app
         accounts_collection = DB['Accounts']
@@ -205,10 +198,12 @@ def update_account(email, old_account_name, new_account_name, balance, income_am
                 'message': {'header': 'Nie udało się.',
                             'body': 'Konto o podanej nazwie istnieje już na Twoim koncie. Spróbuj ponownie, używając innej nazwy.'}}
         
-        if income_amount or income_day:
-            accounts_collection.update_one({'email': email, 'name': old_account_name}, {'$set': {'name': new_account_name, 'balance': balance, 'income_active': True, 'income': income_amount, 'income_day': income_day}})
-        else:
-            accounts_collection.update_one({'email': email, 'name': old_account_name}, {'$set': {'name': new_account_name, 'balance': balance, 'income_active': False, 'income': 0, 'income_day': '0'}})
+        next_income_date = datetime(datetime.now().year, datetime.now().month, int(income_day))
+
+        if not next_income_date.day > datetime.now().day:
+            next_income_date = next_income_date + relativedelta(months=1)
+        
+        accounts_collection.update_one({'email': email, 'name': old_account_name}, {'$set': {'name': new_account_name, 'balance': balance, 'income_active': cyclical, 'income': income_amount, 'next_income_date': next_income_date}})
         
         return {'result': 'success',
                 'message': {'header': 'Wohoo!',
@@ -314,6 +309,7 @@ def authenticate_user(email, password):
 
         if user is not None:
             if check_password_hash(user.get('password'), password) and user.get('status') == 'active':
+                cyclical_budget_update(email)
                 return {'result': 'success',
                         'user': parse_json(user),
                         'message': {'header': 'Dzień dobry!',
@@ -359,7 +355,7 @@ def get_user_accounts(email):
     try:
         DB = app.db_connection.home_budget_app
         accounts_collection = DB["Accounts"]
-        accounts = accounts_collection.find({'email': email}, projection={'balance':True, 'name': True, 'income_active': True, 'income': True, 'income_day': True})
+        accounts = accounts_collection.find({'email': email}, projection={'balance':True, 'name': True, 'income_active': True, 'income': True, 'next_income_date': True})
         return parse_json(accounts)
     except Exception as e:
         return e
@@ -420,3 +416,27 @@ def get_user_statistics(email):
 
     except Exception as e:
         return e
+    
+
+def cyclical_budget_update(email):
+    try:
+        DB = app.db_connection.home_budget_app
+        accounts_collection = DB["Accounts"]
+
+        accounts = accounts_collection.find({'email': email})
+        accounts = parse_json(accounts)
+
+        for account in accounts:
+            print(account)
+            income_date = datetime.strptime(account['next_income_date']['$date'], "%Y-%m-%dT%H:%M:%SZ")
+            
+            if datetime.now() >= income_date:
+                print('DODAWANIE SRODKOW DO KONTA')
+                income = float(account['income'])
+                name = account['name']
+                next_income_date = income_date + relativedelta(months=1)
+                accounts_collection.find_one_and_update({'email': email, 'name': name}, {'$inc': {'balance': income}, '$set': {'next_income_date': next_income_date}})
+
+    except Exception as e:
+        print(e)
+

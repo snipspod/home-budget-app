@@ -43,7 +43,7 @@ if (modalUpdate) {
         } else {
           cyclicalCheck.checked = false
           cyclicalAccordion.classList.remove('show')
-          cyclicalAmount.value = ''
+          cyclicalAmount.value = '0'
           cyclicalDay.value = 1
         }
 

@@ -73,20 +73,20 @@
                             <label for="start_balance">Początkowy stan konta</label>
                             <input type="text" form="add_account" name="start_balance" id="start_balance" class="form-control mb-3" pattern="^(([1-9]\d{0,2}(\d{3})*)|\d+)?(,\d{1,2})?$" title="Podaj wartość całkowitą, lub po przecinku np. 0,25, 30, 21,3" required>
                         </div>
-                        <div class="accordion mb-3">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" role="switch" name="is_cyclical" id="is_cyclical" form="add_account" id="isCyclicalSwitch" data-bs-toggle="collapse" data-bs-target="#cyclical" aria-controls="cyclical">
-                                <label class="form-check-label" for="isCyclicalSwitch">Cykliczny wpływ na konto</label>
+                        <div class="accordion">
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" role="switch" name="is_cyclical" id="is_cyclical" form="add_account" data-bs-toggle="collapse" data-bs-target="#cyclical" aria-controls="cyclical">
+                                <label class="form-check-label" for="is_cyclical">Cykliczny wpływ na konto</label>
                             </div>
                             <div id="cyclical" class="accordion-collapse collapse">
-                                <div class="accordion-body row">
+                                <div class="accordion-body row pt-0">
                                     <div class="col-6">
                                         <label for="income_amount">Kwota wpływu</label>
-                                        <input type="text" form="add_account" name="income_amount" id="income_amount" class="form-control mb-3" pattern="^(([1-9]\d{0,2}(\d{3})*)|\d+)?(,\d{1,2})?$" title="Podaj wartość całkowitą, lub po przecinku np. 0,25, 30, 21,3" >
+                                        <input type="text" form="add_account" name="income_amount" id="income_amount" class="form-control" pattern="^(([1-9]\d{0,2}(\d{3})*)|\d+)?(,\d{1,2})?$" title="Podaj wartość całkowitą, lub po przecinku np. 0,25, 30, 21,3" value="0">
                                     </div>
                                     <div class="col-6">
                                         <label for="income_day">Dzień wpływu</label>
-                                        <select form="add_account" name="income_day" id="income_day" class="form-select mb-3">
+                                        <select form="add_account" name="income_day" id="income_day" class="form-select">
                                             {% for n in range(28) %}
                                                 {% if loop.first %}
                                                     <option selected value="{{ n + 1 }}">{{ n + 1 }}</option>
@@ -99,8 +99,9 @@
                                 </div>
                               </div>
                         </div>
-                        
-                        <button type="submit" class="btn btn-success" form="add_account">Dodaj konto</button>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success" form="add_account">Dodaj konto</button>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -129,20 +130,20 @@
                             <label for="balance_new">Stan konta</label>
                             <input type="text" form="update_account" name="balance_new" id="balance_new" class="form-control mb-3" pattern="^(([1-9]\d{0,2}(\d{3})*)|\d+)?(,\d{1,2})?$" title="Podaj wartość całkowitą, lub po przecinku np. 0,25, 30, 21,3" required>
                         </div>
-                        <div class="accordion mb-3">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" role="switch" name="is_cyclical" id="is_cyclical" form="update_account" id="isCyclicalSwitch" data-bs-toggle="collapse" data-bs-target="#cyclical" aria-controls="cyclical">
-                                <label class="form-check-label" for="isCyclicalSwitch">Cykliczny wpływ na konto</label>
+                        <div class="accordion">
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" role="switch" name="is_cyclical" id="is_cyclical" form="update_account" data-bs-toggle="collapse" data-bs-target="#cyclical" aria-controls="cyclical">
+                                <label class="form-check-label" for="is_cyclical">Cykliczny wpływ na konto</label>
                             </div>
                             <div id="cyclical" class="accordion-collapse collapse">
-                                <div class="accordion-body row">
+                                <div class="accordion-body row pt-0">
                                     <div class="col-6">
                                         <label for="income_amount">Kwota wpływu</label>
-                                        <input type="text" form="update_account" name="income_amount" id="income_amount" class="form-control mb-3" pattern="^(([1-9]\d{0,2}(\d{3})*)|\d+)?(,\d{1,2})?$" title="Podaj wartość całkowitą, lub po przecinku np. 0,25, 30, 21,3" >
+                                        <input type="text" form="update_account" name="income_amount" id="income_amount" class="form-control" pattern="^(([1-9]\d{0,2}(\d{3})*)|\d+)?(,\d{1,2})?$" title="Podaj wartość całkowitą, lub po przecinku np. 0,25, 30, 21,3" value="0">
                                     </div>
                                     <div class="col-6">
                                         <label for="income_day">Dzień wpływu</label>
-                                        <select form="update_account" name="income_day" id="income_day" class="form-select mb-3">
+                                        <select form="update_account" name="income_day" id="income_day" class="form-select">
                                             {% for n in range(28) %}
                                                 {% if loop.first %}
                                                     <option selected value="{{ n + 1 }}">{{ n + 1 }}</option>
@@ -155,8 +156,9 @@
                                 </div>
                               </div>
                         </div>
-                        
-                        <button type="submit" class="btn btn-success" form="update_account">Zapisz</button>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success" form="update_account">Zapisz</button>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -177,7 +179,7 @@
                         <input type="hidden" name="account" id="account" form="delete_account">
                         <button class="btn btn-danger" type="submit" form="delete_account">Usuń</button>
                     </form>
-                    <button class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+                    <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Anuluj</button>
                 </div>
             </div>
         </div>

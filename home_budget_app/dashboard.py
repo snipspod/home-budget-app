@@ -18,6 +18,7 @@ bp = Blueprint('dashboard', __name__, url_prefix='/dashboard')
 def index():
 
     from home_budget_app.db import get_user_categories, get_user_accounts, get_user_expenses
+
     categories = get_user_categories(g.user['email'])
     accounts = get_user_accounts(g.user['email'])
     expenses = get_user_expenses(g.user['email'], 5)

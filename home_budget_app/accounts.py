@@ -16,8 +16,13 @@ bp = Blueprint('accounts', __name__, url_prefix='/accounts')
 @login_required
 def index():
     from home_budget_app.db import get_user_accounts
+    from datetime import datetime
 
     accounts = get_user_accounts(g.user['email'])
+
+    for account in accounts:
+        income_day = datetime.strptime(account['next_income_date']['$date'], "%Y-%m-%dT%H:%M:%SZ").day
+        account['income_day'] = income_day
 
     return render_template('accounts.html', accounts=accounts)
 
@@ -28,18 +33,14 @@ def update_account():
 
     from home_budget_app.db import update_account
 
-    if request.form.get('is_cyclical'):
-        old_account_name = request.form.get('old_account_name')
-        new_account_name = request.form.get('new_account_name')
-        start_balance = float(request.form.get('balance_new').replace(',','.'))
-        income_amount = float(request.form['income_amount'])
-        income_day = request.form['income_day']
-        db_result = update_account(g.user['email'], old_account_name, new_account_name, start_balance, income_amount, income_day)
-    else:
-        old_account_name = request.form.get('old_account_name')
-        new_account_name = request.form.get('new_account_name')
-        start_balance = float(request.form.get('balance_new').replace(',','.'))
-        db_result = update_account(g.user['email'], old_account_name, new_account_name, start_balance)
+    old_account_name = request.form.get('old_account_name')
+    new_account_name = request.form.get('new_account_name')
+    start_balance = float(request.form.get('balance_new').replace(',','.'))
+    cyclical = True if request.form.get('is_cyclical') else False
+    income_amount = float(request.form.get('income_amount'))
+    income_day = request.form.get('income_day')
+
+    db_result = update_account(g.user['email'], old_account_name, new_account_name,start_balance, cyclical, income_amount, income_day)
         
     flash(db_result['message'], db_result['result'])
     return redirect(back)
@@ -65,16 +66,15 @@ def add_account():
 
     from home_budget_app.db import add_account
 
-    if request.form.get('is_cyclical'):
-        account_name = request.form.get('account_name')
-        start_balance = float(request.form.get('start_balance').replace(',','.'))
-        income_amount = float(request.form['income_amount'])
-        income_day = request.form['income_day']
-        db_result = add_account(g.user['email'], account_name, start_balance, income_amount, income_day)
-    else:
-        account_name = request.form.get('account_name')
-        start_balance = float(request.form.get('start_balance').replace(',','.'))
-        db_result = add_account(g.user['email'], account_name, start_balance)
+    account_name = request.form.get('account_name')
+    start_balance = float(request.form.get('start_balance').replace(',','.'))
+    cyclical = True if request.form.get('is_cyclical') else False
+    print(request.form.get('income_amount'))
+    income_amount = float(request.form.get('income_amount'))
+    income_amount = 0
+    income_day = request.form.get('income_day')
+
+    db_result = add_account(g.user['email'], account_name, start_balance, cyclical, income_amount, income_day)
         
 
     flash(db_result['message'], db_result['result'])

@@ -30,6 +30,7 @@ def create_app():
     from . import user_account
     from . import categories
     from . import accounts
+    from . import budgets
 
     app.register_blueprint(auth.bp)
     app.register_blueprint(dashboard.bp)
@@ -37,6 +38,7 @@ def create_app():
     app.register_blueprint(user_account.bp)
     app.register_blueprint(categories.bp)
     app.register_blueprint(accounts.bp)
+    app.register_blueprint(budgets.bp)
     
     app.add_url_rule('/', endpoint='dashboard.index')
 
