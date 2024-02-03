@@ -6,6 +6,66 @@
 
 {% block content %}
     <div class="container">
-        siema!
+        <div class="row my-4">
+            <div class="col-12 text-center">
+                <h1 class="display-5">
+                    Zarządzaj budżetami
+                </h1>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-10 d-grid mx-auto">
+                <button type="button" class="btn btn-lg btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalAdd">
+                    <span>Zdefiniuj nowy budżet</span>
+                </button>
+            </div>
+        </div>
     </div>
+
+    <div class="modal modal-xl fade" id="modalAdd" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title">Dodaj budżet</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" name="add_budget" id="add_budget" action="#">
+                        <div class="row mb-3">
+                            <div class="col-6 form-floating">
+                                <input type="text" form="add_budget" name="budget_name" id="budget_name" class="form-control" placeholder="Nazwa budżetu">
+                                <label for="budget_name" class="form-label ms-2">Nazwa budżetu</label>
+                            </div>
+                            <div class="col-6 form-floating">
+                                <input type="text" form="add_budget" name="budget_amount" id="budget_amount" class="form-control" placeholder="Kwota budżetu" pattern="^(([1-9]\d{0,2}(\d{3})*)|\d+)?(,\d{1,2})?$" title="Podaj wartość całkowitą, lub po przecinku np. 0,25, 30, 21,3">
+                                <label for="budget_amount" class="form-label ms-2">Kwota budżetu</label
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="d-flex flex-wrap justify-content-around">
+                                    {% for category in categories %}
+                                        <div class="accordion">
+                                            <div class="form-check form-switch mb-3">
+                                                <input type="checkbox" class="form-check-input" role="switch" name="include_{{ category }}" id="include_{{ category }}" form="add_budget" data-bs-toggle="collapse" data-bs-target="#accordion_{{ category }}" aria-controls="accordion_{{ category }}">
+                                                <label for="include_{{ category }}">{{ category }}</label>
+                                            </div>
+                                            <div class="accordion-collapse collapse" id="accordion_{{ category }}">
+                                                123 test
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <button type="submit" class="btn btn-success">Dodaj budżet</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
 {% endblock %}

@@ -71,12 +71,12 @@ def update_expense():
 
     expense_id = request.form['expense_id']
     amount = float(request.form['amount'].replace(',','.'))
-    category = request.form['category']
+    category_id = request.form['category']
     date = datetime.strptime(request.form['date'], "%Y-%m-%d")
-    account = request.form['account']
+    account_id = request.form['account']
     description = request.form['description'].strip()
 
-    db_result = update_expense(expense_id, amount, category, date, account, description)
+    db_result = update_expense(expense_id, amount, category_id, date, account_id, description)
 
     flash(db_result['message'], db_result['result'])
 

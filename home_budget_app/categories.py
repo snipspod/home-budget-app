@@ -27,9 +27,9 @@ def delete_category():
     from home_budget_app.db import delete_category
     back = request.referrer
 
-    category = request.form['category']
+    category_id = request.form['category_id']
 
-    db_result = delete_category(g.user['email'], category)
+    db_result = delete_category(category_id)
 
     flash(db_result['message'], db_result['result'])
     return redirect(back)
@@ -40,10 +40,10 @@ def update_category():
     from home_budget_app.db import update_category
     back = request.referrer
 
-    category_old = request.form['category_old']
-    category_new = request.form['category_new']
+    category_id = request.form['category_id']
+    category_new = request.form['category_new'].strip()
 
-    db_result = update_category(g.user['email'], category_old, category_new)
+    db_result = update_category(category_id, category_new)
 
     flash(db_result['message'], db_result['result'])
     return redirect(back)
@@ -54,8 +54,7 @@ def add_category():
     back = request.referrer
     from home_budget_app.db import add_category
 
-    category = request.form['category_name']
-    print(category)
+    category = request.form['category_name'].strip()
 
     db_result = add_category(g.user['email'], category)
 

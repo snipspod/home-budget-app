@@ -25,7 +25,7 @@ def index():
     date = datetime.today().strftime('%Y-%m-%d')
     return render_template('dashboard.html', categories=categories, accounts=accounts, expenses=expenses, date=date)
 
-@bp.route('/', methods=("POST",))
+@bp.route('/add-expense', methods=("POST",))
 @login_required
 def add_single_expense():
     from home_budget_app.db import add_single_expense
@@ -33,17 +33,17 @@ def add_single_expense():
     back = request.referrer
     if request.method == 'POST':
         amount = float(request.form['amount'].replace(',','.'))
-        category = request.form['category']
+        category_id = request.form['category']
         date = datetime.strptime(request.form['date'], "%Y-%m-%d")
-        account = request.form['account']
+        account_id = request.form['account']
         description = request.form['description'].strip()
 
         db_result = add_single_expense(
                 email = g.user['email'],
                 amount = amount,
                 date = date,
-                account = account,
-                category = category,
+                account_id = account_id,
+                category_id = category_id,
                 description = description
         )
         flash(db_result['message'], db_result['result'])

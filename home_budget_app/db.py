@@ -7,7 +7,7 @@ from home_budget_app.utils import parse_json
 from bson import ObjectId
 
 
-def create_user(name, email, password):
+def create_user(name, email, password, password_confirm):
     DB = app.db_connection.home_budget_app
     password_hash = generate_password_hash(password)
     users_collection = DB["Users"]
@@ -19,10 +19,12 @@ def create_user(name, email, password):
         'created_at': datetime.now(),
         'updated_at': datetime.now(),
         'status': 'active',
-        'categories': [
-            'Spożywcze', 'Dom', 'Jedzenie poza domem', 'Kosmetyki', 'Podróże', 'Rozrywka', 'Edukacja'
-            ]
     }
+
+    if password is not password_confirm:
+        return {'result': 'danger',
+                'message': {'header': 'Niepowodzenie!',
+                            'body': 'Podane hasła nie są zgodne!'}}
 
     if users_collection.find_one({'email': email}) is None:
         try:
@@ -40,15 +42,26 @@ def create_user(name, email, password):
                             'body': 'Użytkownik z takim mailem już istnieje!'}}
     
  
-def add_single_expense(email, amount, date, account, category, description):
+def add_single_expense(email, amount, date, account_id, category_id, description):
     DB = app.db_connection.home_budget_app
     expenses_collection = DB["Expenses"]
+    accounts_collection = DB['Accounts']
+
+    category_id = ObjectId(category_id)
+    account_id = ObjectId(account_id)
+
+    account_details = accounts_collection.find_one({'_id': account_id}, projection={'balance': True, 'name': True})
+
+    if amount > account_details['balance']:
+        return {'result': 'danger',
+                'message': {'header': 'Nie udało się!',
+                            'body': f'Nie udało się dodać wydatku {description}. Na koncie {account_details['name']} nie ma wystarczająco środków!'}}
 
     expense = {
         'email': email,
         'description': description,
-        'category': category,
-        'account': account,
+        'category_id': category_id,
+        'account_id': account_id,
         'amount': amount,
         'date_at': date,
         'date_submitted': datetime.now(),
@@ -56,6 +69,7 @@ def add_single_expense(email, amount, date, account, category, description):
     
     try:
         expenses_collection.insert_one(expense)
+        accounts_collection.update_one({'_id': account_id}, {'$inc': {'balance': -(amount)}})
         return {'result': 'success',
                 'message': {'header': 'Wohoo!',
                             'body': 'Pomyślnie dodano wydatek!'}}
@@ -68,9 +82,9 @@ def add_single_expense(email, amount, date, account, category, description):
 def add_category(email, category):
     try:
         DB = app.db_connection.home_budget_app
-        users_collection = DB['Users']
+        category_collection = DB['Categories']
 
-        users_collection.update_one({'email': email}, {'$push': {'categories': category}})
+        category_collection.insert_one({'name': category, 'email': email})
 
         return {'result': 'success',
                 'message': {'header': 'Wohoo!',
@@ -149,14 +163,24 @@ def update_password(email, old_password, new_password):
                             'body': e}}
     
 
-def update_expense(expense_id, amount, category, date, account, description):
+def update_expense(expense_id, amount, category_id, date, account_id, description):
     try:
         DB = app.db_connection.home_budget_app
         expenses_collection = DB["Expenses"]
+        accounts_collection = DB['Accounts']
 
         expense_id = ObjectId(expense_id)
+        account_id = ObjectId(account_id)
+        category_id = ObjectId(category_id)
 
-        expenses_collection.find_one_and_update({'_id': expense_id}, {'$set': {'amount': amount, 'category': category, 'date_at': date, 'account': account, 'description': description}})
+        old_expense_amount = expenses_collection.find_one({'_id': expense_id})['amount']
+
+        account_difference = old_expense_amount - amount
+
+        accounts_collection.find_one_and_update({'_id': account_id}, {'$inc': {'balance': account_difference}})
+        
+
+        expenses_collection.find_one_and_update({'_id': expense_id}, {'$set': {'amount': amount, 'category_id': category_id, 'date_at': date, 'account_id': account_id, 'description': description}})
 
         return {'result': 'success',
                 'message': {'header': 'Wohoo!',
@@ -168,15 +192,14 @@ def update_expense(expense_id, amount, category, date, account, description):
                             'body': e}} 
     
 
-def update_category(email, category_old, category_new):
+def update_category(category_id, category_new):
     try:
         DB = app.db_connection.home_budget_app
-        expenses_collection = DB['Expenses']
-        users_collection = DB['Users']
+        categories_collection = DB['Categories']
 
-        users_collection.update_one({'email': email, 'categories': category_old}, {'$set': {'categories.$': category_new}})
+        category_id = ObjectId(category_id)
 
-        expenses_collection.update_many({'email': email, 'category': category_old}, {'$set': {'category': category_new}})
+        categories_collection.update_one({'_id': category_id}, {'$set': {'name': category_new}})
 
         return {'result': 'success',
                 'message': {'header': 'Wohoo!',
@@ -188,10 +211,14 @@ def update_category(email, category_old, category_new):
                             'body': e}}
     
 
-def update_account(email, old_account_name, new_account_name, balance, cyclical, income_amount = False, income_day = False):
+def update_account(email, account_id, new_account_name, balance, cyclical, income_amount = False, income_day = False):
     try:
         DB = app.db_connection.home_budget_app
         accounts_collection = DB['Accounts']
+
+        account_id = ObjectId(account_id)
+
+        old_account_name = accounts_collection.find_one({'_id': account_id})['name']
 
         if new_account_name != old_account_name and accounts_collection.find_one({'email': email, 'name': new_account_name}):
             return {'result': 'danger',
@@ -203,11 +230,11 @@ def update_account(email, old_account_name, new_account_name, balance, cyclical,
         if not next_income_date.day > datetime.now().day:
             next_income_date = next_income_date + relativedelta(months=1)
         
-        accounts_collection.update_one({'email': email, 'name': old_account_name}, {'$set': {'name': new_account_name, 'balance': balance, 'income_active': cyclical, 'income': income_amount, 'next_income_date': next_income_date}})
+        accounts_collection.update_one({'_id': account_id}, {'$set': {'name': new_account_name, 'balance': balance, 'income_active': cyclical, 'income': income_amount, 'next_income_date': next_income_date}})
         
         return {'result': 'success',
                 'message': {'header': 'Wohoo!',
-                            'body': 'Pomyślnie dodano konto!'}}
+                            'body': 'Pomyślnie zaktualizowano dane o koncie!'}}
     
     except Exception as e:
         return {'result': 'danger',
@@ -222,12 +249,18 @@ def delete_user_account(email, password):
         DB = app.db_connection.home_budget_app
         users_collection = DB['Users']
         expenses_collection = DB['Expenses']
+        accounts_collection = DB['Accounts']
+        budgets_collection = DB['Budgets']
+        categories_collection = DB['Categories']
 
         current_password = users_collection.find_one({'email': email}, projection={'password':True})['password']
 
         if check_password_hash(current_password, password):
             users_collection.find_one_and_delete({'email': email})
             expenses_collection.delete_many({'email': email})
+            accounts_collection.delete_many({'email': email})
+            budgets_collection.delete_many({'email': email})
+            categories_collection.delete_many({'email': email})
 
             return {'result': 'success',
                     'message': {'header': 'Konto usunięte pomyślnie!',
@@ -261,18 +294,20 @@ def delete_expense(expense_id):
                             'body': e}} 
 
 
-def delete_category(email, category):
+def delete_category(category_id):
     try:
         DB = app.db_connection.home_budget_app
-        users_collection = DB['Users']
         expenses_collection = DB['Expenses']
+        categories_collection = DB['Categories']
 
-        users_collection.update_one({'email': email}, {'$pull': {'categories': category}})
-        expenses_collection.delete_many({'email': email, 'category': category})
+        category_id = ObjectId(category_id)
+
+        categories_collection.delete_one({'_id': category_id})
+        expenses_collection.delete_many({'category_id': category_id})
 
         return {'result': 'success',
                 'message': {'header': 'Wohoo!',
-                            'body': 'Pomyślnie usunięto kategorię!'}}
+                            'body': 'Pomyślnie usunięto kategorię i wydatki z tej kategorii!'}}
     
     except Exception as e:
         return {'result': 'danger',
@@ -280,12 +315,16 @@ def delete_category(email, category):
                             'body': e}} 
     
 
-def delete_account(email, account_name):
+def delete_account(account_id):
     try:
         DB = app.db_connection.home_budget_app
         accounts_collection = DB['Accounts']
+        expenses_collection = DB['Expenses']
 
-        accounts_collection.delete_one({'email': email, 'name': account_name})
+        account_id = ObjectId(account_id)
+
+        accounts_collection.delete_one({'_id': account_id})
+        expenses_collection.delete_many({'_id': account_id})
         
         return {'result': 'success',
                 'message': {'header': 'Powodzenie!',
@@ -345,8 +384,8 @@ def get_user_by_email(email):
 def get_user_categories(email):
     try:
         DB = app.db_connection.home_budget_app
-        users_collection = DB["Users"]
-        categories = users_collection.find_one({'email': email}, projection={'categories':True})['categories']
+        categories_collection = DB["Categories"]
+        categories = categories_collection.find({'email': email})
         return parse_json(categories)
     except Exception as e:
         return e
@@ -360,14 +399,16 @@ def get_user_accounts(email):
     except Exception as e:
         return e
     
-def get_user_expenses(email, limit:int=0):
+def get_user_expenses(email, limit = 9999):
     """Returns user expenses. Amount of returned documents can be limited by specifying second **parameter**."""
     
     try:
         DB = app.db_connection.home_budget_app
         expenses_collection = DB["Expenses"]
         
-        expenses = expenses_collection.find({'email': email},limit=limit, sort=[('date_at', DESCENDING)])
+        expenses = expenses_collection.aggregate(
+            [{'$match': {'email': email}}, {'$limit': limit}, {'$sort': {'data_at': -1}}, {'$lookup': {'from': 'Categories', 'localField': 'category_id', 'foreignField': '_id', 'as': 'category'}}, {'$lookup': {'from': 'Accounts', 'localField': 'account_id', 'foreignField': '_id', 'as': 'account'}}, {'$project': {'amount': 1, 'date_at': 1, 'date_submitted': 1, 'description': 1, 'category_id': 1, 'category': {'$first': '$category.name'}, 'account_id': 1, 'account_name': {'$first': '$account.name'}}}]
+            )
 
         return parse_json(expenses)
     except Exception as e:

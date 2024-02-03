@@ -11,21 +11,23 @@ if (modalDelete) {
   modalDelete.addEventListener('show.bs.modal', event => {
     const btn = event.relatedTarget
     console.log(btn)
-    const account = btn.dataset.account
+    const accountId = btn.dataset.account
     const accountName = modalDelete.querySelector('.modal-body h5 span')
-    const accountField = modalDelete.querySelector('#account')
+    const accountIdModal = modalDelete.querySelector('#account_id')
+    const accounts = getData(_accounts)
 
-    accountName.innerText = account
-    accountField.value = account
+    currentAccountData = accounts.find(({ _id }) => _id.$oid == accountId)
+
+    accountName.innerText = currentAccountData.name
+    accountIdModal.value = accountId
   })
 }
 
 if (modalUpdate) {
     modalUpdate.addEventListener('show.bs.modal', event => {
         const btn = event.relatedTarget
-        const current_account = btn.dataset.account
-        const current_balance = btn.dataset.balance.replace('.', ',')
-        const oldAccountName = modalUpdate.querySelector('#old_account_name')
+        const accountId = btn.dataset.account
+        const accountIdModal = modalUpdate.querySelector('#account_id')
         const accountName = modalUpdate.querySelector('#new_account_name')
         const accountBalance = modalUpdate.querySelector('#balance_new')
         const cyclicalCheck = modalUpdate.querySelector('#is_cyclical')
@@ -34,7 +36,7 @@ if (modalUpdate) {
         const cyclicalDay = modalUpdate.querySelector('#income_day')
         const accounts = getData(_accounts)
 
-        currentAccountData = accounts.find(({ name }) => name == current_account)
+        currentAccountData = accounts.find(({ _id }) => _id.$oid == accountId)
         if (currentAccountData.income_active) {
           cyclicalCheck.checked = true
           cyclicalAccordion.classList.add('show')
@@ -54,9 +56,9 @@ if (modalUpdate) {
             cyclicalAmount.required = false
           }
         })
-        accountName.value = current_account
-        accountBalance.value = current_balance
-        oldAccountName.value = current_account
+        accountName.value = currentAccountData.name
+        accountBalance.value = currentAccountData.balance.toString().replace('.', ',')
+        accountIdModal.value = currentAccountData._id.$oid
 
     })
 }

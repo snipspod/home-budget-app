@@ -37,10 +37,10 @@
                                     <h5 class="text-center mb-3">{{ account['balance'] }}zł</h5>
                                     <div class="row">
                                         <div class="col d-grid">
-                                            <button type="button" data-bs-toggle="modal" data-bs-target="#modalUpdate" data-account="{{ account['name'] }}" data-balance="{{ account['balance'] }}" class="btn btn-outline-secondary btn-sm">Edytuj</button>
+                                            <button type="button" data-bs-toggle="modal" data-bs-target="#modalUpdate" data-account="{{ account['_id']['$oid'] }}" data-balance="{{ account['balance'] }}" class="btn btn-outline-secondary btn-sm">Edytuj</button>
                                         </div>
                                         <div class="col d-grid">
-                                            <button type="button" data-bs-toggle="modal" data-bs-target="#modalDelete" data-account="{{ account['name'] }}" class="btn btn-outline-danger btn-sm">Usuń</button>
+                                            <button type="button" data-bs-toggle="modal" data-bs-target="#modalDelete" data-account="{{ account['_id']['$oid'] }}" class="btn btn-outline-danger btn-sm">Usuń</button>
                                         </div>
                                     </div>
                                 </div>
@@ -121,7 +121,7 @@
                     <p>Ustawienie cyklicznego wpływu nie działa wstecz.</p>
                     <form method="POST" name="update_account" id="update_account" action="{{ url_for('accounts.update_account') }}">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" form="update_account">
-                        <input type="hidden" name="old_account_name" id="old_account_name" form="update_account">
+                        <input type="hidden" name="account_id" id="account_id" form="update_account">
                         <div class="mb-3">
                             <label for="new_account_name" class="form-label">Nazwa</label>
                             <input type="text" form="update_account" name="new_account_name" id="new_account_name" value="" class="form-control" required>
@@ -176,7 +176,7 @@
                 <div class="modal-footer justify-content-between">
                     <form method="POST" name="delete_account" id="delete_account" action="{{ url_for('accounts.delete_account') }}">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" form="delete_account">
-                        <input type="hidden" name="account" id="account" form="delete_account">
+                        <input type="hidden" name="account_id" id="account_id" form="delete_account">
                         <button class="btn btn-danger" type="submit" form="delete_account">Usuń</button>
                     </form>
                     <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Anuluj</button>

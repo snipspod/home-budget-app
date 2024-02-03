@@ -25,13 +25,19 @@
                     <input type="email" id="email" name="email" class="form-control" placeholder="Email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" title="Użyj poprawnego maila." required>
                     <label for="username" class="form-label">Email</label>
                 </div>
-                <div class="form-floating mb-4">
+                <div class="form-floating mb-3">
                     <input type="password" id="password" name="password" class="form-control" placeholder="Hasło" required>
                     <label for="password" class="form-label">Hasło</label>
+                    <div class="form-text px-2" style="font-size: 0.75rem">Hasło powinno zawierać minimum 8 znaków, w tym jedną dużą literę, jedną małą, jedną cyfrę i jeden symbol specjalny.</div>
+                </div>
+                <div class="form-floating mb-4">
+                    <input type="password" id="password_confirm" name="password_confirm" class="form-control" placeholder="Potwierdź hasło" required>
+                    <label for="password_confirm" class="form-label">Potwierdź hasło</label>
+                    <div class="form-text px-2 text-success d-none" id="passwords_match_info">Hasła są zgodne ☺</div>
                 </div>
                 
                 <div class="mb-4 d-grid">
-                    <input type="submit" class="btn btn-primary" value="Zarejestruj">
+                    <input type="submit" class="btn btn-primary" value="Zarejestruj" id="register_button" disabled>
                 </div>
                 <div class="text-center">
                     <p>Masz już konto? <a href="{{ url_for('auth.login') }}">Zaloguj się!</a></p>
@@ -40,5 +46,7 @@
         </div>
     </div>
 </div>
+
+<script src="{{ url_for('static', filename='js/register.js') }}" defer></script>
 
 {% endblock %}

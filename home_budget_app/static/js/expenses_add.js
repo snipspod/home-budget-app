@@ -50,7 +50,7 @@ function addTableRow() {
 
     let categorySelect = `<select class="form-select" aria-label="Category" name="category">`
     categories.forEach(category => {
-        categorySelect += `<option value="${category}">${category}</option>`
+        categorySelect += `<option value="${category._id.$oid}">${category.name}</option>`
     })
     categorySelect += `</select>`
 
@@ -59,7 +59,7 @@ function addTableRow() {
     
     let accountSelect = `<select class="form-select" aria-label="Account" name="account">`
     accounts.forEach(account => {
-        accountSelect += `<option value="${account.name}">${account.name}</option>`
+        accountSelect += `<option value="${account._id.$oid}">${account.name}</option>`
     })
     accountSelect += `</select>`
 
@@ -80,16 +80,30 @@ function addTableRow() {
     btn.addEventListener('click', () => {
         delRow(btn)
     })
+    
+    rowCount = countRows()
+    refreshTable(rowCount)
 }
 
 function delRow(btn) {
     let row = btn.parentNode.parentNode
     let tbody = btn.parentNode.parentNode.parentNode
     tbody.removeChild(row)
+
+    rowCount = countRows()
+    refreshTable(rowCount)
 }
 
-function refreshTable() {
-    btnDelRows = document.querySelectorAll(".btnDelRow")
+function refreshTable(rowCount) {
+    let addExpenseTableBody = document.querySelector("#addExpensesTableBody")
 
-    
+    for (let i = 0; i < rowCount; i++) {
+        addExpenseTableBody.children[i].children[0].innerHTML = String(i + 1)
+    }
+}
+
+function countRows() {
+    let addExpenseTableBody = document.querySelector("#addExpensesTableBody")
+    let rows = addExpenseTableBody.children.length
+    return rows
 }

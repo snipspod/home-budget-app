@@ -19,6 +19,7 @@ def index():
     from datetime import datetime
 
     accounts = get_user_accounts(g.user['email'])
+    print(accounts)
 
     for account in accounts:
         income_day = datetime.strptime(account['next_income_date']['$date'], "%Y-%m-%dT%H:%M:%SZ").day
@@ -33,14 +34,14 @@ def update_account():
 
     from home_budget_app.db import update_account
 
-    old_account_name = request.form.get('old_account_name')
+    account_id = request.form.get('account_id')
     new_account_name = request.form.get('new_account_name')
-    start_balance = float(request.form.get('balance_new').replace(',','.'))
+    balance = float(request.form.get('balance_new').replace(',','.'))
     cyclical = True if request.form.get('is_cyclical') else False
     income_amount = float(request.form.get('income_amount'))
     income_day = request.form.get('income_day')
 
-    db_result = update_account(g.user['email'], old_account_name, new_account_name,start_balance, cyclical, income_amount, income_day)
+    db_result = update_account(g.user['email'], account_id, new_account_name,balance, cyclical, income_amount, income_day)
         
     flash(db_result['message'], db_result['result'])
     return redirect(back)
@@ -51,9 +52,9 @@ def delete_account():
     back = request.referrer
     from home_budget_app.db import delete_account
 
-    account_name = request.form.get('account')
+    account_id = request.form.get('account_id')
 
-    db_result = delete_account(g.user['email'], account_name)
+    db_result = delete_account(account_id)
         
     flash(db_result['message'], db_result['result'])
     

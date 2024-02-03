@@ -46,7 +46,7 @@
                                             <label for="category" class="form-label">Kategoria</label>
                                             <select class="form-select" aria-label="Category" name="category">
                                                 {% for category in categories %}
-                                                    <option value="{{ category }}">{{ category }}</option>
+                                                    <option value="{{ category['_id']['$oid'] }}">{{ category['name'] }}</option>
                                                 {% endfor %}
                                             </select>
                                         </div>
@@ -60,7 +60,7 @@
                                             <label for="account" class="form-label">Konto</label>
                                             <select class="form-select" aria-label="Account" name="account">
                                                 {% for account in accounts %}
-                                                    <option value="{{ account['name'] }}">{{ account['name'] }}</option>
+                                                    <option value="{{ account['_id']['$oid'] }}">{{ account['name'] }}</option>
                                                 {% endfor %}
                                             </select>
                                         </div>
@@ -127,7 +127,7 @@
                                     <td>{{ expense['amount'] }} zł</td>
                                     <td>{{ expense['description'] }}</td>
                                     <td>{{ expense['category'] }}</td>
-                                    <td>{{ expense['account'] }}</td>
+                                    <td>{{ expense['account_name'] }}</td>
                                     <td>{{ expense['date_at']['$date']|format_date_from_string }}</td>
                                 </tr>
                             {% endfor %}

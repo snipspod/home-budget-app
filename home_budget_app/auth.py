@@ -47,9 +47,10 @@ def register():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
+        password_confirm = request.form['password_confirm']
         name = request.form['name']
 
-        db_result = create_user(name, email, password)
+        db_result = create_user(name, email, password, password_confirm)
             
         flash(db_result['message'], db_result['result'])
         if db_result['result'] == 'success':

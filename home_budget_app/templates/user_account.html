@@ -13,7 +13,7 @@
       </div>
 
       <div class="row justify-content-center mb-3">
-        <div class="col-lg-7 text-center">
+        <div class="col-lg-12 text-center">
           <div class="card">
             <div class="card-body">
               <h4 class="card-title">Statystyki</h4>
@@ -33,7 +33,9 @@
             </div>
           </div>
         </div>
-        <div class="col-lg-5 text-center">
+      </div>
+      <div class="row justify-content-center">
+        <div class="col-lg-6 text-center">
           <div class="card">
             <div class="card-body">
               <h4 class="card-title mb-4">Zmiana hasła</h4>
@@ -46,18 +48,20 @@
                   <div class="form-floating mb-4 col-8">
                     <input type="password" id="new_password" name="new_password" class="form-control" placeholder="Nowe hasło" form="change-password" required/>
                     <label class="form-label ms-3" for="new_password">Nowe hasło</label>
+                    <div class="form-text px1" style="font-size: 0.75rem">Hasło powinno zawierać minimum 8 znaków, w tym jedną dużą literę, jedną małą, jedną cyfrę i jeden symbol specjalny.</div>
+                  </div>
+                  <div class="form-floating mb-4 col-8">
+                    <input type="password" id="new_password_confirm" name="new_password_confirm" class="form-control" placeholder="Potwierdź nowe hasło" form="change-password" required/>
+                    <label class="form-label ms-3" for="new_password_confirm">Potwierdź nowe hasło</label>
                   </div>
                   <div class="mb-4 d-grid col-8">
-                      <input type="submit" class="btn btn-primary" form="change-password" value="Zapisz">
+                      <input type="submit" class="btn btn-primary" id="change_password_button" form="change-password" value="Zapisz" disabled>
                   </div>
-                </form>
+              </form>
             </div>
           </div>
         </div>
-      </div>
-      <div class="row justify-content-center">
-        <div class="col-lg-7"></div>
-        <div class="col-lg-5 text-center">
+        <div class="col-lg-6 text-center">
           <div class="card">
             <div class="card-body">
               <h4 class="card-title mb-3">Usunięcie konta</h4>
@@ -65,11 +69,15 @@
             <form method="POST" action="{{ url_for('user_account.delete_account') }}" class="row justify-content-center" name="delete-account" id="delete-account">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div class="form-floating mb-4 col-8">
-                  <input type="password" id="password" name="password" class="form-control" placeholder="Podaj hasło" form="delete-account">
+                  <input type="password" id="password" name="password" class="form-control" placeholder="Podaj hasło" form="delete-account" required>
                   <label for="password" class="form-label ms-3">Podaj hasło</label>
                 </div>
+                <div class="form-floating mb-4 col-8">
+                  <input type="password" id="password_confirm" name="password_confirm" class="form-control" placeholder="Potwierdź hasło" form="delete-account" required>
+                  <label for="password_confirm" class="form-label ms-3">Potwierdź hasło</label>
+                </div>
                 <div class="mb-4 d-grid col-8">
-                  <input type="submit" class="btn btn-danger" form="delete-account" value="Usuń konto">
+                  <input type="submit" class="btn btn-danger" id="delete_account_button" form="delete-account" value="Usuń konto" disabled>
                 </div>
               </form>
             </div>
@@ -77,4 +85,6 @@
         </div>
       </div>
     </div>
+
+    <script src="{{ url_for('static', filename='js/user_account.js') }}" defer></script>
 {% endblock %}
