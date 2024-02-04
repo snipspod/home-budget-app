@@ -10,7 +10,6 @@ function getData(data) {
 if (modalDelete) {
   modalDelete.addEventListener('show.bs.modal', event => {
     const btn = event.relatedTarget
-    console.log(btn)
     const accountId = btn.dataset.account
     const accountName = modalDelete.querySelector('.modal-body h5 span')
     const accountIdModal = modalDelete.querySelector('#account_id')

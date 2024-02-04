@@ -117,32 +117,6 @@
 
 <!-- End navbar -->
 
-
-<!-- Begin flashed messages modal -->
-
-    <!-- {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <div class="modal fade" id="modal" tabindex="-1" aria-labelledby="modalLabel">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        {% for category, message in messages %}
-                            <div class="modal-header">
-                                <h1 class="modal-title fs-5 text-{{ category }}" id="modalLabel">{{ category|upper }}</h1>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body text-{{ category }}">
-                                {{ message }}
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-            
-        {% endif %}
-    {% endwith %} -->
-
-<!-- End flashed messages modal -->
-
 <!-- Flashed messages toast -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}

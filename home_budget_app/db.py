@@ -131,6 +131,44 @@ def add_account(email, account_name, start_balance, cyclical,income_amount, inco
                             'body': e}} 
     
 
+def add_budget(email, name, amount, assoc_categories):
+    try:
+        DB = app.db_connection.home_budget_app
+        budgets_collection = DB['Budgets']
+
+        category_sum = 0
+        for category in assoc_categories:
+            category_sum += category['amount']
+            category['amount'] = round(category['amount'], 2)
+
+        if round(category_sum,2) != round(amount, 2):
+            return {'result': 'danger',
+                'message': {'header': 'Błąd!',
+                            'body': f'Podany kwota budżetu: {amount}zł. Suma kategorii: {round(category_sum, 2)}zł.'}}
+        
+        if budgets_collection.find_one({'name': name}):
+            return {'result': 'danger',
+                'message': {'header': 'Nie udało się dodać budżetu!',
+                            'body': f'Posiadasz już budżet o nazwie {name}'}}
+        
+        budget = {
+            'email': email,
+            'name': name,
+            'amount': amount,
+            'spent': 0,
+            'assoc_categories': assoc_categories
+        }
+        
+        budgets_collection.insert_one(budget)
+        return {'result': 'success',
+                'message': {'header': 'Wszystko OK!',
+                            'body': 'Wsysztko spoko mordziaty'}}
+
+    except Exception as e:
+        return {'result': 'danger',
+                'message': {'header': 'Nieznany błąd!',
+                            'body': e}}
+
 #! UPDATE METHODS
         
 

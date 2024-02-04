@@ -19,8 +19,7 @@ def index():
     from datetime import datetime
 
     accounts = get_user_accounts(g.user['email'])
-    print(accounts)
-
+    
     for account in accounts:
         income_day = datetime.strptime(account['next_income_date']['$date'], "%Y-%m-%dT%H:%M:%SZ").day
         account['income_day'] = income_day
