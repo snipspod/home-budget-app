@@ -15,11 +15,13 @@ bp = Blueprint('budgets', __name__, url_prefix='/budgets')
 @bp.route('/', methods=('GET',))
 @login_required
 def index():
-    from home_budget_app.db import get_user_categories
+    from home_budget_app.db import get_user_categories, get_user_budgets
 
     categories = get_user_categories(g.user['email'])
+    budgets = get_user_budgets(g.user['email'])
 
-    return render_template('budgets.html', categories=categories)
+    print(budgets)
+    return render_template('budgets.html', categories=categories, budgets=budgets)
 
 @bp.route('/add-budget', methods=('POST',))
 @login_required

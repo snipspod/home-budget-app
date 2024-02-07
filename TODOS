@@ -6,3 +6,6 @@ PANEL KONTA:
 
 USUWANIE WYDATKÓW:
 - dodawanie do konta pieniedzy po usunieciu wydatrkow?
+
+SESJA UŻYTKOWNIKA:
+- dopisać modal wyswietlany X minut po braku aktywnosci uzytkownika ze zostal wylogowany i musi ponownie sie zalogowac

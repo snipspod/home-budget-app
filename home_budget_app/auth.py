@@ -25,6 +25,7 @@ def login():
 
         if 'user' in db_result:
             session.clear()
+            session.permanent = True
             session['user_email'] = db_result['user'].get('email')
             flash(db_result['message'], db_result['result'])
             return redirect(url_for('dashboard.index'))

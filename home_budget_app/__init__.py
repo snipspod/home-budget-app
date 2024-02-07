@@ -1,5 +1,6 @@
 import os
 from flask import Flask
+from datetime import timedelta
 from dotenv import dotenv_values
 from flask_wtf.csrf import CSRFProtect
 from pymongo.mongo_client import MongoClient
@@ -14,7 +15,8 @@ def create_app():
     csrf = CSRFProtect(app)
     app.config.from_mapping(
         SECRET_KEY = secrets['SECRET_KEY'],
-        MONGO_URI = secrets['MONGO_URI']
+        MONGO_URI = secrets['MONGO_URI'],
+        PERMANENT_SESSION_LIFETIME = timedelta(minutes=int(secrets['SESSION_TIMEOUT']))
     )
     with app.app_context():
         try:
@@ -76,5 +78,9 @@ def create_app():
             date = date.replace(key, lookup_table[key])
 
         return date
+    
+    @app.template_filter()
+    def strip_number(value):
+        return str(value).split('.', 1)[0]
 
     return app

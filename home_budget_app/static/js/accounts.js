@@ -15,7 +15,7 @@ if (modalDelete) {
     const accountIdModal = modalDelete.querySelector('#account_id')
     const accounts = getData(_accounts)
 
-    currentAccountData = accounts.find(({ _id }) => _id.$oid == accountId)
+    let currentAccountData = accounts.find(({ _id }) => _id.$oid == accountId)
 
     accountName.innerText = currentAccountData.name
     accountIdModal.value = accountId

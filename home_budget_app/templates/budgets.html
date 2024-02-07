@@ -21,6 +21,29 @@
                 </button>
             </div>
         </div>
+        <div class="row">
+            <div class="col-12">
+                <h1 class="display-6 mb-3">Twoje budżety</h1>
+                <div class="d-flex flex-wrap justify-content-around">
+                    {% if budgets %}
+                        {% for budget in budgets %}
+                            <div class="card col-lg-3 m-2">
+                                <div class="card-header h5">
+                                    {{ budget['name'] }}
+                                </div>
+                                <div class="card-body">
+                                    <div class="progress" role="progressbar" aria-valuenow="{{ budget['spent']|strip_number }}" aria-valuemin="0" aria-valuemax="100">
+                                        <div class="progress-bar"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                    <p class="fw-light">Nie posiadasz jeszcze żadnych budżetów!</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="modal modal-xl fade" id="modalAdd" tabindex="-1" aria-hidden="true">
@@ -35,11 +58,11 @@
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" form="add_budget">
                         <div class="row mb-3">
                             <div class="col-6 form-floating">
-                                <input type="text" form="add_budget" name="budget_name" id="budget_name" class="form-control" placeholder="Nazwa budżetu">
+                                <input type="text" form="add_budget" name="budget_name" id="budget_name" class="form-control" placeholder="Nazwa budżetu" required>
                                 <label for="budget_name" class="form-label ms-2">Nazwa budżetu</label>
                             </div>
                             <div class="col-6 form-floating">
-                                <input type="text" form="add_budget" name="budget_amount" id="budget_amount" class="form-control" placeholder="Kwota budżetu" pattern="^(([1-9]\d{0,2}(\d{3})*)|\d+)?(,\d{1,2})?$" title="Podaj wartość całkowitą, lub po przecinku np. 0,25, 30, 21,3">
+                                <input type="text" form="add_budget" name="budget_amount" id="budget_amount" class="form-control" placeholder="Kwota budżetu" pattern="^(([1-9]\d{0,2}(\d{3})*)|\d+)?(,\d{1,2})?$" title="Podaj wartość całkowitą, lub po przecinku np. 0,25, 30, 21,3" required>
                                 <label for="budget_amount" class="form-label ms-2">Kwota budżetu</label>
                             </div>
                         </div>
@@ -56,7 +79,7 @@
                                             <div class="accordion-collapse collapse text-center" id="accordion_{{ category['_id']['$oid'] }}">
                                                 <p class="mb-2">Procent budżetu do przeznaczenia</p>
                                                 <div class="input-group mx-auto w-75">
-                                                    <input type="number" min="1" max="100" form="add_budget" name="percentage_{{ category['_id']['$oid'] }}" id="percentage_{{ category['_id']['$oid'] }}" class="form-control w-50 rounded-start" aria-label="Dolar amount">
+                                                    <input type="number" min="1" max="100" form="add_budget" name="percentage_{{ category['_id']['$oid'] }}" id="percentage_{{ category['_id']['$oid'] }}" class="form-control w-50 rounded-start percentage-group" aria-label="Dolar amount">
                                                     <span class="input-group-text">%</span>
                                                 </div>
                                             </div>
@@ -67,12 +90,14 @@
                             </div>
                         </div>
                         <div class="row">
-                            <button type="submit" class="btn btn-success w-50 mx-auto">Dodaj budżet</button>
+                            <button type="submit" class="btn btn-success w-50 mx-auto" id="add-budget-btn" form="add_budget" disabled>Dodaj budżet</button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
+
+    <script src="{{ url_for('static', filename='js/budgets.js') }}" defer></script>
 
 {% endblock %}

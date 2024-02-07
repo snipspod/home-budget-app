@@ -46,6 +46,7 @@ def add_single_expense(email, amount, date, account_id, category_id, description
     DB = app.db_connection.home_budget_app
     expenses_collection = DB["Expenses"]
     accounts_collection = DB['Accounts']
+    budgets_collection = DB['Budgets']
 
     category_id = ObjectId(category_id)
     account_id = ObjectId(account_id)
@@ -70,6 +71,7 @@ def add_single_expense(email, amount, date, account_id, category_id, description
     try:
         expenses_collection.insert_one(expense)
         accounts_collection.update_one({'_id': account_id}, {'$inc': {'balance': -(amount)}})
+        budgets_collection.update_many({'assoc_categories': {'$elemMatch': {'category_id': category_id}}}, {'$inc': {'spent': amount, 'assoc_categories.$[idx].spent': amount}}, array_filters=[{'idx.category_id': category_id}])
         return {'result': 'success',
                 'message': {'header': 'Wohoo!',
                             'body': 'Pomyślnie dodano wydatek!'}}
@@ -140,6 +142,8 @@ def add_budget(email, name, amount, assoc_categories):
         for category in assoc_categories:
             category_sum += category['amount']
             category['amount'] = round(category['amount'], 2)
+            category['category_id'] = ObjectId(category['category_id'])
+            category['spent'] = 0
 
         if round(category_sum,2) != round(amount, 2):
             return {'result': 'danger',
@@ -449,6 +453,17 @@ def get_user_expenses(email, limit = 9999):
             )
 
         return parse_json(expenses)
+    except Exception as e:
+        return e
+    
+def get_user_budgets(email):
+    try:
+        DB = app.db_connection.home_budget_app
+        budgets_collection = DB['Budgets']
+        
+        budgets = budgets_collection.find({'email': email})
+
+        return parse_json(budgets)
     except Exception as e:
         return e
     
