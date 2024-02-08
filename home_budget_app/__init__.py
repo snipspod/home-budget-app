@@ -79,8 +79,4 @@ def create_app():
 
         return date
     
-    @app.template_filter()
-    def strip_number(value):
-        return str(value).split('.', 1)[0]
-
     return app

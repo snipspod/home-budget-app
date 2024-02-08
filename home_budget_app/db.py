@@ -463,6 +463,8 @@ def get_user_budgets(email):
         
         budgets = budgets_collection.find({'email': email})
 
+
+
         return parse_json(budgets)
     except Exception as e:
         return e

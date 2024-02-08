@@ -9,3 +9,37 @@ USUWANIE WYDATKÓW:
 
 SESJA UŻYTKOWNIKA:
 - dopisać modal wyswietlany X minut po braku aktywnosci uzytkownika ze zostal wylogowany i musi ponownie sie zalogowac
+
+BUDŻETY:
+- agregacja nazwy kategorii po category_id przy wyciaganiu budżetów:
+
+[
+  {
+    $match:
+      /**
+       * query: The query in MQL.
+       */
+      {
+        email: "kouba99@tlen.pl",
+      },
+  },
+  {
+    $lookup: {
+      from: "Categories",
+      let: {
+        category_id:
+          "$assoc_categories.category_id",
+      },
+      pipeline: [
+        {
+          $match: {
+            $expr: {
+              $eq: ["$_id", "$category_id"],
+            },
+          },
+        },
+      ],
+      as: "result",
+    },
+  },
+]

@@ -32,8 +32,13 @@
                                     {{ budget['name'] }}
                                 </div>
                                 <div class="card-body">
-                                    <div class="progress" role="progressbar" aria-valuenow="{{ budget['spent']|strip_number }}" aria-valuemin="0" aria-valuemax="100">
-                                        <div class="progress-bar"></div>
+                                    <div class="spent-total">
+                                        <p>Wydano łącznie: <span>{{ budget['spent'] }} / {{ budget['amount'] }}</span>zł</p>
+                                    </div>
+                                    <div class="spent-categories">
+                                        {% for category in budget['assoc_categories'] %}
+                                            <p>{{ category['spent'] }} / {{ category['amount'] }}</p>
+                                        {% endfor %}
                                     </div>
                                 </div>
                             </div>
