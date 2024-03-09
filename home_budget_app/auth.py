@@ -25,6 +25,7 @@ def login():
 
         if 'user' in db_result:
             session.clear()
+            session.permanent = True
             session['user_email'] = db_result['user'].get('email')
             flash(db_result['message'], db_result['result'])
             return redirect(url_for('dashboard.index'))
@@ -47,12 +48,15 @@ def register():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
+        password_confirm = request.form['password_confirm']
         name = request.form['name']
 
-        db_result = create_user(name, email, password)
+        db_result = create_user(name, email, password.strip(), password_confirm.strip())
+
             
         flash(db_result['message'], db_result['result'])
         if db_result['result'] == 'success':
+            print(session.get('user_email'))
             return redirect(url_for('auth.login'))
         else:
             return redirect(url_for('auth.register'))

@@ -1,0 +1,108 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    Budgets
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row my-4">
+            <div class="col-12 text-center">
+                <h1 class="display-5">
+                    Zarządzaj budżetami
+                </h1>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-10 d-grid mx-auto">
+                <button type="button" class="btn btn-lg btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalAdd">
+                    <span>Zdefiniuj nowy budżet</span>
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <h1 class="display-6 mb-3">Twoje budżety</h1>
+                <div class="d-flex flex-wrap justify-content-around">
+                    {% if budgets %}
+                        {% for budget in budgets %}
+                            <div class="card col-lg-3 m-2">
+                                <div class="card-header h4">
+                                    {{ budget['name'] }}
+                                </div>
+                                <div class="card-body">
+                                    <div class="spent-total">
+                                        <p>Wydano łącznie: <span>{{ budget['spent'] }} / {{ budget['amount'] }}</span>zł</p>
+                                    </div>
+                                    <div class="spent-categories">
+                                        {% for category in budget['assoc_categories'] %}
+                                            <p>{{ category['name'] }}: {{ category['spent'] }} / {{ category['amount'] }}zł</p>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                    <p class="fw-light">Nie posiadasz jeszcze żadnych budżetów!</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal modal-xl fade" id="modalAdd" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title">Dodaj budżet</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" name="add_budget" id="add_budget" action="{{ url_for('budgets.add_budget') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" form="add_budget">
+                        <div class="row mb-3">
+                            <div class="col-6 form-floating">
+                                <input type="text" form="add_budget" name="budget_name" id="budget_name" class="form-control" placeholder="Nazwa budżetu" required>
+                                <label for="budget_name" class="form-label ms-2">Nazwa budżetu</label>
+                            </div>
+                            <div class="col-6 form-floating">
+                                <input type="text" form="add_budget" name="budget_amount" id="budget_amount" class="form-control" placeholder="Kwota budżetu" pattern="^(([1-9]\d{0,2}(\d{3})*)|\d+)?(,\d{1,2})?$" title="Podaj wartość całkowitą, lub po przecinku np. 0,25, 30, 21,3" required>
+                                <label for="budget_amount" class="form-label ms-2">Kwota budżetu</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="d-flex flex-wrap justify-content-between">
+                                    {% for category in categories %}
+                                    <div class="col-3">
+                                        <div class="d-flex accordion justify-content-center flex-column mb-3">
+                                            <p class="fs-5 mb-1 mx-auto">{{ category['name'] }}</p>
+                                            <div class="form-check form-switch mb-3 mx-auto">
+                                                <input type="checkbox" class="form-check-input" role="switch" name="include_{{ category['_id']['$oid'] }}" id="include_{{ category['_id']['$oid'] }}" form="add_budget" data-bs-toggle="collapse" data-bs-target="#accordion_{{ category['_id']['$oid'] }}" aria-controls="accordion_{{ category['_id']['$oid'] }}">
+                                            </div>
+                                            <div class="accordion-collapse collapse text-center" id="accordion_{{ category['_id']['$oid'] }}">
+                                                <p class="mb-2">Procent budżetu do przeznaczenia</p>
+                                                <div class="input-group mx-auto w-75">
+                                                    <input type="number" min="1" max="100" form="add_budget" name="percentage_{{ category['_id']['$oid'] }}" id="percentage_{{ category['_id']['$oid'] }}" class="form-control w-50 rounded-start percentage-group" aria-label="Dolar amount">
+                                                    <span class="input-group-text">%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <button type="submit" class="btn btn-success w-50 mx-auto" id="add-budget-btn" form="add_budget" disabled>Dodaj budżet</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/budgets.js') }}" defer></script>
+
+{% endblock %}

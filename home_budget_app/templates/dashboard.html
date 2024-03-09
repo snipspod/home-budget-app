@@ -46,7 +46,7 @@
                                             <label for="category" class="form-label">Kategoria</label>
                                             <select class="form-select" aria-label="Category" name="category">
                                                 {% for category in categories %}
-                                                    <option value="{{ category }}">{{ category }}</option>
+                                                    <option value="{{ category['_id']['$oid'] }}">{{ category['name'] }}</option>
                                                 {% endfor %}
                                             </select>
                                         </div>
@@ -60,7 +60,7 @@
                                             <label for="account" class="form-label">Konto</label>
                                             <select class="form-select" aria-label="Account" name="account">
                                                 {% for account in accounts %}
-                                                    <option value="{{ account['name'] }}">{{ account['name'] }}</option>
+                                                    <option value="{{ account['_id']['$oid'] }}">{{ account['name'] }}</option>
                                                 {% endfor %}
                                             </select>
                                         </div>
@@ -70,7 +70,7 @@
                                         <input type="text" id="description" name="description" pattern="^(\S| ){1,100}$" title="Opis nie może być pusty i może zawierać maksymalnie 100 znaków" class="form-control">
                                     </div>
                                     <div class="mb-4">
-                                        <input type="submit" class="btn btn-primary" value="Add">
+                                        <input type="submit" class="btn btn-primary" value="Dodaj">
                                     </div>
                                 </form>
                             </div>
@@ -88,11 +88,11 @@
                 <div class="row">
                     {% if accounts %}
                         {% for account in accounts %}
-                        <div class="col">
+                        <div class="col-lg-3">
                             <div class="card text-bg-secondary mb-3 text-center mx-auto" style="max-width: 18rem;">
                                 <div class="card-header h6">{{ account['name'] }}</div>
                                 <div class="card-body">
-                                <h4 class="card-title">{{ account['current_balance'] }} zł</h5>
+                                    <h4 class="card-title">{{ account['balance'] }} zł</h5>
                                 </div>
                             </div>
                         </div>
@@ -107,6 +107,7 @@
         <!-- LAST EXPENSES SECTION -->
         <div class="row my-4">
             <div class="col-12 justify-content-center">
+                <h1 class="display-6 mb-3">Twoje ostatnie wydatki</h1>
                 {% if expenses %}
                     <table class="table table-sm">
                         <thead>
@@ -126,7 +127,7 @@
                                     <td>{{ expense['amount'] }} zł</td>
                                     <td>{{ expense['description'] }}</td>
                                     <td>{{ expense['category'] }}</td>
-                                    <td>{{ expense['account'] }}</td>
+                                    <td>{{ expense['account_name'] }}</td>
                                     <td>{{ expense['date_at']['$date']|format_date_from_string }}</td>
                                 </tr>
                             {% endfor %}

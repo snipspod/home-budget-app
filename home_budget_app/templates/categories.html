@@ -42,7 +42,7 @@
                             {% for category in categories %}
                             <div class="mb-3 d-grid gap-2 col-6 mx-auto dropend">
                                 <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    {{ category }}
+                                    {{ category['name'] }}
                                 </button>
                                 <ul class="dropdown-menu">
                                     <li><button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#modalUpdate" data-bs-category="{{ category }}">Edytuj</button></li>
@@ -62,13 +62,13 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-body">
-                    <h5 class="text-warning">Czy na pewno chcesz usunąć kategorię <span></span>?</h4>
+                    <h5 class="text-warning">Czy na pewno chcesz usunąć kategorię <span class="fst-italic"></span>?</h4>
                     <p>Spowoduje to również usunięcie wszystkich wydatków, przypisanych do tej kategorii.</p>
                 </div>
                 <div class="modal-footer justify-content-between">
                     <form method="POST" name="delete_category" id="delete_category" action="{{ url_for('categories.delete_category') }}">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" form="delete_category">
-                        <input type="hidden" name="category" id="category" form="delete_category">
+                        <input type="hidden" name="category_id" id="category_id" form="delete_category">
                         <button class="btn btn-danger" type="submit" form="delete_category">Usuń</button>
                     </form>
                     <button class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
@@ -90,7 +90,7 @@
                     <p>Zmiana nazwy kategorii wpłynie na wszystkie wydatki przypisane do tej kategorii.</p>
                     <form method="POST" name="update_category" id="update_category" action="{{ url_for('categories.update_category') }}">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" form="update_category">
-                        <input type="hidden" name="category_old" id="category_old" form="update_category">
+                        <input type="hidden" name="category_id" id="category_id" form="update_category">
                         <label for="category_new" class="form-label">Nazwa</label>
                         <input type="text" form="update_category" name="category_new" id="category_new" value="" class="form-control mb-3" required>
                         <button type="submit" class="btn btn-success" form="update_category">Zapisz</button>

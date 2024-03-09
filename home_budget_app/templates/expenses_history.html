@@ -38,12 +38,12 @@
                     </thead>
                     <tbody class="table-group-divider">
                         {% for expense in expenses %}
-                                <tr data-bs-toggle="modal" data-bs-target="#modalEdit" data-amount="{{ expense['amount'] }}" data-description="{{ expense['description'] }}" data-category="{{ expense['category'] }}" data-account="{{ expense['account'] }}" data-date="{{ expense['date_at']['$date']|format_date_from_string }}" data-expenseId="{{ expense['_id']['$oid'] }}" class="expenseTableRow">
+                                <tr data-bs-toggle="modal" data-bs-target="#modalEdit" data-amount="{{ expense['amount'] }}" data-description="{{ expense['description'] }}" data-category="{{ expense['category'] }}" data-account="{{ expense['account_name'] }}" data-categoryId="{{ expense['category_id'] }}" data-accountId="{{ expense['account_id'] }}" data-date="{{ expense['date_at']['$date']|format_date_from_string }}" data-expenseId="{{ expense['_id']['$oid'] }}" class="expenseTableRow">
                                     <td>{{ loop.index }}</td>
                                     <td>{{ expense['amount'] }} zł</td>
                                     <td>{{ expense['description'] }}</td>
                                     <td>{{ expense['category'] }}</td>
-                                    <td>{{ expense['account'] }}</td>
+                                    <td>{{ expense['account_name'] }}</td>
                                     <td>{{ expense['date_at']['$date']|format_date_from_string }}</td>  
                                     <td><button type="button" class="btn-close" data-bs-toggle="modal" data-bs-target="#modalConfirm"></button></td>
                                 </tr>
@@ -75,7 +75,7 @@
                                     <label for="category" class="form-label">Kategoria</label>
                                     <select class="form-select" aria-label="Category" name="category" id="category">
                                         {% for category in categories %}
-                                            <option value="{{ category }}">{{ category }}</option>
+                                            <option value="{{ category['_id']['$oid'] }}">{{ category['name'] }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
@@ -89,7 +89,7 @@
                                     <label for="account" class="form-label">Konto</label>
                                     <select class="form-select" aria-label="Account" name="account" id="account">
                                         {% for account in accounts %}
-                                            <option value="{{ account['name'] }}">{{ account['name'] }}</option>
+                                            <option value="{{ account['_id']['$oid'] }}">{{ account['name'] }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>

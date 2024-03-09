@@ -2,12 +2,12 @@ const modalDelete = document.getElementById('modalDelete')
 if (modalDelete) {
   modalDelete.addEventListener('show.bs.modal', event => {
     const btn = event.relatedTarget
-    const category = btn.getAttribute('data-bs-category')
+    const category = JSON.parse(btn.getAttribute('data-bs-category').replaceAll("'", '"'))
     const categoryModal = modalDelete.querySelector('.modal-body h5 span')
-    const categoryField = modalDelete.querySelector('#category')
+    const categoryId = modalDelete.querySelector('#category_id')
 
-    categoryModal.innerText = category
-    categoryField.value = category
+    categoryModal.innerText = category.name
+    categoryId.value = category._id.$oid
   })
 }
 
@@ -16,11 +16,13 @@ const modalUpdate = document.getElementById('modalUpdate')
 if(modalUpdate) {
   modalUpdate.addEventListener('show.bs.modal', event => {
     const btn = event.relatedTarget
-    const category = btn.getAttribute('data-bs-category')
-    const category_old = modalUpdate.querySelector('#category_old')
-    const category_new = modalUpdate.querySelector('#category_new')
+    const category = JSON.parse(btn.getAttribute('data-bs-category').replaceAll("'", '"'))
+    const categoryId = modalUpdate.querySelector('#category_id')
+    const categoryName = modalUpdate.querySelector('#category_new')
 
-    category_old.value = category
-    category_new.placeholder = category
+    console.log(category._id.$oid)
+
+    categoryId.value = category._id.$oid
+    categoryName.placeholder = category.name
   })
 }

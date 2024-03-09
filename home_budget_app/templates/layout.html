@@ -37,21 +37,27 @@
                              Dashboard</a>
                     </li>
                     <li>
-                        <a href="{{ url_for('expenses.index') }}" class="nav-link px-2 link-light fw-light link-opacity-75-hover icon-link">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="16" width="12" viewBox="0 0 384 512">
-                                <path class="nav-icon" d="M14 2.2C22.5-1.7 32.5-.3 39.6 5.8L80 40.4 120.4 5.8c9-7.7 22.3-7.7 31.2 0L192 40.4 232.4 5.8c9-7.7 22.3-7.7 31.2 0L304 40.4 344.4 5.8c7.1-6.1 17.1-7.5 25.6-3.6s14 12.4 14 21.8V488c0 9.4-5.5 17.9-14 21.8s-18.5 2.5-25.6-3.6L304 471.6l-40.4 34.6c-9 7.7-22.3 7.7-31.2 0L192 471.6l-40.4 34.6c-9 7.7-22.3 7.7-31.2 0L80 471.6 39.6 506.2c-7.1 6.1-17.1 7.5-25.6 3.6S0 497.4 0 488V24C0 14.6 5.5 6.1 14 2.2zM96 144c-8.8 0-16 7.2-16 16s7.2 16 16 16H288c8.8 0 16-7.2 16-16s-7.2-16-16-16H96zM80 352c0 8.8 7.2 16 16 16H288c8.8 0 16-7.2 16-16s-7.2-16-16-16H96c-8.8 0-16 7.2-16 16zM96 240c-8.8 0-16 7.2-16 16s7.2 16 16 16H288c8.8 0 16-7.2 16-16s-7.2-16-16-16H96z"/>
-                            </svg>
-                             Wydatki</a>
+                        <div class="dropdown">
+                            <a class="nav-link px-2 link-light fw-light link-opacity-75-hover icon-link" data-bs-toggle="dropdown" role="button">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="16" width="12" viewBox="0 0 384 512">
+                                    <path class="nav-icon" d="M14 2.2C22.5-1.7 32.5-.3 39.6 5.8L80 40.4 120.4 5.8c9-7.7 22.3-7.7 31.2 0L192 40.4 232.4 5.8c9-7.7 22.3-7.7 31.2 0L304 40.4 344.4 5.8c7.1-6.1 17.1-7.5 25.6-3.6s14 12.4 14 21.8V488c0 9.4-5.5 17.9-14 21.8s-18.5 2.5-25.6-3.6L304 471.6l-40.4 34.6c-9 7.7-22.3 7.7-31.2 0L192 471.6l-40.4 34.6c-9 7.7-22.3 7.7-31.2 0L80 471.6 39.6 506.2c-7.1 6.1-17.1 7.5-25.6 3.6S0 497.4 0 488V24C0 14.6 5.5 6.1 14 2.2zM96 144c-8.8 0-16 7.2-16 16s7.2 16 16 16H288c8.8 0 16-7.2 16-16s-7.2-16-16-16H96zM80 352c0 8.8 7.2 16 16 16H288c8.8 0 16-7.2 16-16s-7.2-16-16-16H96c-8.8 0-16 7.2-16 16zM96 240c-8.8 0-16 7.2-16 16s7.2 16 16 16H288c8.8 0 16-7.2 16-16s-7.2-16-16-16H96z"/>
+                                </svg>
+                                Wydatki</a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="{{ url_for('expenses.expense_history') }}" class="dropdown-item">Zobacz</a></li>
+                                    <li><a href="{{ url_for('expenses.expense_add') }}" class="dropdown-item">Dodaj</a></li>
+                                </ul>
+                            </div>
                     </li>
                     <li>
-                        <a href="#" class="nav-link px-2 link-light fw-light link-opacity-75-hover icon-link">
+                        <a href="{{ url_for('accounts.index') }}" class="nav-link px-2 link-light fw-light link-opacity-75-hover icon-link">
                             <svg xmlns="http://www.w3.org/2000/svg" height="16" width="18" viewBox="0 0 576 512">
                                 <path class="nav-icon" d="M64 64C28.7 64 0 92.7 0 128V384c0 35.3 28.7 64 64 64H512c35.3 0 64-28.7 64-64V128c0-35.3-28.7-64-64-64H64zm64 320H64V320c35.3 0 64 28.7 64 64zM64 192V128h64c0 35.3-28.7 64-64 64zM448 384c0-35.3 28.7-64 64-64v64H448zm64-192c-35.3 0-64-28.7-64-64h64v64zM288 160a96 96 0 1 1 0 192 96 96 0 1 1 0-192z"/>
                             </svg>
                              Konta</a>
                     </li>
                     <li>
-                        <a href="#" class="nav-link px-2 link-light fw-light link-opacity-75-hover icon-link">
+                        <a href="{{ url_for('budgets.index') }}" class="nav-link px-2 link-light fw-light link-opacity-75-hover icon-link">
                             <svg xmlns="http://www.w3.org/2000/svg" height="16" width="18" viewBox="0 0 576 512">
                                 <path class="nav-icon" d="M400 96l0 .7c-5.3-.4-10.6-.7-16-.7H256c-16.5 0-32.5 2.1-47.8 6c-.1-2-.2-4-.2-6c0-53 43-96 96-96s96 43 96 96zm-16 32c3.5 0 7 .1 10.4 .3c4.2 .3 8.4 .7 12.6 1.3C424.6 109.1 450.8 96 480 96h11.5c10.4 0 18 9.8 15.5 19.9l-13.8 55.2c15.8 14.8 28.7 32.8 37.5 52.9H544c17.7 0 32 14.3 32 32v96c0 17.7-14.3 32-32 32H512c-9.1 12.1-19.9 22.9-32 32v64c0 17.7-14.3 32-32 32H416c-17.7 0-32-14.3-32-32V448H256v32c0 17.7-14.3 32-32 32H192c-17.7 0-32-14.3-32-32V416c-34.9-26.2-58.7-66.3-63.2-112H68c-37.6 0-68-30.4-68-68s30.4-68 68-68h4c13.3 0 24 10.7 24 24s-10.7 24-24 24H68c-11 0-20 9-20 20s9 20 20 20H99.2c12.1-59.8 57.7-107.5 116.3-122.8c12.9-3.4 26.5-5.2 40.5-5.2H384zm64 136a24 24 0 1 0 -48 0 24 24 0 1 0 48 0z"/>
                                 </svg>
@@ -110,32 +116,6 @@
     </nav>
 
 <!-- End navbar -->
-
-
-<!-- Begin flashed messages modal -->
-
-    <!-- {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <div class="modal fade" id="modal" tabindex="-1" aria-labelledby="modalLabel">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        {% for category, message in messages %}
-                            <div class="modal-header">
-                                <h1 class="modal-title fs-5 text-{{ category }}" id="modalLabel">{{ category|upper }}</h1>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body text-{{ category }}">
-                                {{ message }}
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-            
-        {% endif %}
-    {% endwith %} -->
-
-<!-- End flashed messages modal -->
 
 <!-- Flashed messages toast -->
     {% with messages = get_flashed_messages(with_categories=true) %}
