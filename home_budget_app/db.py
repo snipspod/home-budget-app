@@ -7,27 +7,27 @@ from home_budget_app.utils import parse_json
 from bson import ObjectId
 
 
-def create_user(name, email, password, password_confirm):
-    try:
-        DB = app.db_connection.home_budget_app
-        password_hash = generate_password_hash(password)
-        users_collection = DB["Users"]
+def create_user(name, email, password):
+    DB = app.db_connection.home_budget_app
+    password_hash = generate_password_hash(password)
+    users_collection = DB["Users"]
 
-        user = {
-            'email': email,
-            'password': password_hash,
-            'name': name,
-            'created_at': datetime.now(),
-            'updated_at': datetime.now(),
-            'status': 'active',
-        }
+    user = {
+        'email': email,
+        'password': password_hash,
+        'name': name,
+        'created_at': datetime.datetime.now(),
+        'updated_at': datetime.datetime.now(),
+        'status': 'active',
+        'categories': [
+            'Spożywcze', 'Dom', 'Jedzenie poza domem', 'Kosmetyki', 'Podróże', 'Rozrywka', 'Edukacja'
+            ],
+        'accounts': [],
+        'budgets': []
+    }
 
-        if password != password_confirm:
-            return {'result': 'danger',
-                    'message': {'header': 'Niepowodzenie!',
-                                'body': 'Podane hasła nie są zgodne!'}}
-
-        if users_collection.find_one({'email': email}) is None:
+    if users_collection.find_one({'email': email}) is None:
+        try:
             users_collection.insert_one(user)
             return {'result': 'success',
                     'message': {'header': 'Udało się!',
@@ -47,18 +47,6 @@ def create_user(name, email, password, password_confirm):
 def add_single_expense(email, amount, date, account_id, category_id, description):
     DB = app.db_connection.home_budget_app
     expenses_collection = DB["Expenses"]
-    accounts_collection = DB['Accounts']
-    budgets_collection = DB['Budgets']
-
-    category_id = ObjectId(category_id)
-    account_id = ObjectId(account_id)
-
-    account_details = accounts_collection.find_one({'_id': account_id}, projection={'balance': True, 'name': True})
-
-    if amount > account_details['balance']:
-        return {'result': 'danger',
-                'message': {'header': 'Nie udało się!',
-                            'body': f"Nie udało się dodać wydatku {description}. Na koncie {account_details['name']} nie ma wystarczająco środków!"}}
 
     expense = {
         'email': email,
@@ -455,17 +443,6 @@ def get_user_expenses(email, limit = 9999):
             )
 
         return parse_json(expenses)
-    except Exception as e:
-        return e
-    
-def get_user_budgets(email):
-    try:
-        DB = app.db_connection.home_budget_app
-        budgets_collection = DB['Budgets']
-        
-        budgets = budgets_collection.aggregate([{'$match': {'email': 'kouba99@tlen.pl'}}, {'$lookup': {'from': 'Categories', 'localField': 'assoc_categories.category_id', 'foreignField': '_id', 'as': 'result'}}, {'$project': {'email': 1, 'name': 1, 'amount': 1, 'spent': 1, 'assoc_categories': {'$map': {'input': '$assoc_categories', 'as': 'one', 'in': {'$mergeObjects': ['$$one', {'$arrayElemAt': [{'$filter': {'input': '$result', 'as': 'two', 'cond': {'$eq': ['$$two._id', '$$one.category_id']}}}, 0]}]}}}}}])
-
-        return parse_json(budgets)
     except Exception as e:
         return e
     

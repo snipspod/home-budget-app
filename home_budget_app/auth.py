@@ -51,8 +51,7 @@ def register():
         password_confirm = request.form['password_confirm']
         name = request.form['name']
 
-        db_result = create_user(name, email, password.strip(), password_confirm.strip())
-
+        db_result = create_user(name, email, password)
             
         flash(db_result['message'], db_result['result'])
         if db_result['result'] == 'success':

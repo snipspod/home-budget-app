@@ -22,7 +22,7 @@ def index():
     
     return render_template('user_account.html', stats=stats)
 
-@bp.route('/change-password', methods=('POST',))
+@bp.route('/change-passwordchange-password', methods=('POST',))
 @login_required
 def change_password():
     from home_budget_app.db import update_password
