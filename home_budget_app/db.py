@@ -7,7 +7,7 @@ from home_budget_app.utils import parse_json
 from bson import ObjectId
 
 
-def create_user(name, email, password):
+def create_user(name, email, password, password_confirm):
     DB = app.db_connection.home_budget_app
     password_hash = generate_password_hash(password)
     users_collection = DB["Users"]
@@ -16,37 +16,47 @@ def create_user(name, email, password):
         'email': email,
         'password': password_hash,
         'name': name,
-        'created_at': datetime.datetime.now(),
-        'updated_at': datetime.datetime.now(),
+        'created_at': datetime.now(),
+        'updated_at': datetime.now(),
         'status': 'active',
-        'categories': [
-            'Spożywcze', 'Dom', 'Jedzenie poza domem', 'Kosmetyki', 'Podróże', 'Rozrywka', 'Edukacja'
-            ],
-        'accounts': [],
-        'budgets': []
     }
+
+    if password is not password_confirm:
+        return {'result': 'danger',
+                'message': {'header': 'Niepowodzenie!',
+                            'body': 'Podane hasła nie są zgodne!'}}
 
     if users_collection.find_one({'email': email}) is None:
         try:
             users_collection.insert_one(user)
             return {'result': 'success',
                     'message': {'header': 'Udało się!',
-                                'body': 'Użytkownik pomyślnie zarejestrowany!'}}
-
-        else:
-            return {'result': 'danger',
-                    'message': {'header': 'Niepowodzenie',
-                                'body': 'Użytkownik z takim mailem już istnieje!'}}
-    
-    except Exception as e:
+                                'message': 'Użytkownik pomyślnie zarejestrowany!'}}
+        except Exception as e:
             return {'result': 'danger',
                     'message': {'header': 'Nieznany błąd',
-                                'body': e}}
+                                'message': e}}
+    else:
+        return {'result': 'danger',
+                'message': {'header': 'Niepowodzenie',
+                            'body': 'Użytkownik z takim mailem już istnieje!'}}
     
  
 def add_single_expense(email, amount, date, account_id, category_id, description):
     DB = app.db_connection.home_budget_app
     expenses_collection = DB["Expenses"]
+    accounts_collection = DB['Accounts']
+    budgets_collection = DB['Budgets']
+
+    category_id = ObjectId(category_id)
+    account_id = ObjectId(account_id)
+
+    account_details = accounts_collection.find_one({'_id': account_id}, projection={'balance': True, 'name': True})
+
+    if amount > account_details['balance']:
+        return {'result': 'danger',
+                'message': {'header': 'Nie udało się!',
+                            'body': f'Nie udało się dodać wydatku {description}. Na koncie {account_details["name"]} nie ma wystarczająco środków!'}}
 
     expense = {
         'email': email,
@@ -446,6 +456,20 @@ def get_user_expenses(email, limit = 9999):
     except Exception as e:
         return e
     
+def get_user_budgets(email):
+    try:
+        DB = app.db_connection.home_budget_app
+        budgets_collection = DB['Budgets']
+        
+        # budgets = budgets_collection.find({'email': email})
+        budgets = budgets_collection.aggregate([{'$match':{'email':email}},{'$lookup':{'from':'Categories','localField':'assoc_categories.category_id','foreignField':'_id','as':'category_details'}},{'$project':{'email':1,'name':1,'amount':1,'spent':1,'assoc_categories':{'$map':{'input':'$assoc_categories','in':{'$let':{'vars':{'m':{'$arrayElemAt':[{'$filter':{'input':'$category_details','cond':{'$eq':['$$mb._id','$$this.category_id']},'as':'mb'}},0]}},'in':{'$mergeObjects':['$$this',{'name':'$$m.name'}]}}}}}}}])
+
+
+
+        return parse_json(budgets)
+    except Exception as e:
+        return e
+    
 def get_user_statistics(email):
     try:
         DB = app.db_connection.home_budget_app
@@ -512,4 +536,3 @@ def cyclical_budget_update(email):
 
     except Exception as e:
         print(e)
-
