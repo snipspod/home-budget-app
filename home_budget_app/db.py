@@ -1,9 +1,9 @@
 from pymongo import ASCENDING, DESCENDING
-from datetime import datetime
+from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import current_app as app
-from home_budget_app.utils import parse_json
+from home_budget_app.utils import parse_json, last_day_of_month
 from bson import ObjectId
 
 
@@ -513,6 +513,22 @@ def get_user_statistics(email):
 
     except Exception as e:
         return e
+    
+
+def get_last_month_expense_sum_by_category(email):
+    try: 
+        DB = app.db_connection.home_budget_app
+        expenses_collection = DB['Expenses']
+        date_now = datetime(datetime.now().year, datetime.now().month, 1)
+        date_last = last_day_of_month(date_now)
+
+        expenses = expenses_collection.aggregate([{'$match':{'email': email,'date_at':{'$gte':date_now,'$lte':date_last}}},{'$group':{'_id':'$category_id','sum':{'$sum':'$amount'}}},{'$lookup':{'from':'Categories','localField':'_id','foreignField':'_id','as':'result'}},{'$unwind':{'path':'$result'}},{'$project':{'sum':1,'_id':0,'name':'$result.name'}}])
+
+        return parse_json(expenses)
+
+    except Exception as e:
+        return e
+    
     
 
 def cyclical_budget_update(email):

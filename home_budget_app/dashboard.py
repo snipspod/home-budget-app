@@ -17,13 +17,15 @@ bp = Blueprint('dashboard', __name__, url_prefix='/dashboard')
 @login_required
 def index():
 
-    from home_budget_app.db import get_user_categories, get_user_accounts, get_user_expenses
+    from home_budget_app.db import get_user_categories, get_user_accounts, get_user_expenses, get_last_month_expense_sum_by_category
 
     categories = get_user_categories(g.user['email'])
     accounts = get_user_accounts(g.user['email'])
     expenses = get_user_expenses(g.user['email'], 5)
     date = datetime.today().strftime('%Y-%m-%d')
-    return render_template('dashboard.html', categories=categories, accounts=accounts, expenses=expenses, date=date)
+    categories_spent = get_last_month_expense_sum_by_category(g.user['email'])
+    print(categories_spent)
+    return render_template('dashboard.html', categories=categories, accounts=accounts, expenses=expenses, date=date, categories_spent=categories_spent)
 
 @bp.route('/add-expense', methods=("POST",))
 @login_required

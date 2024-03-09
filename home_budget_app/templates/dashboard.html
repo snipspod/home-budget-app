@@ -143,12 +143,19 @@
             </div>
         </div>
 
-        <div>
-            <canvas id="sampleChart"></canvas>
+        <div class="row my-4">
+            <div class="col-4">
+                <div>
+                    <canvas id="sampleChart"></canvas>
+                </div>
+            </div>
         </div>
 
-    </div>
 
+    </div>
+    <script type="text/javascript" defer>
+        let _categories_spent = `{{ categories_spent|tojson }}`
+    </script>
     <script src="{{ url_for('static', filename='js/dashboard.js') }}" defer></script>
 
 {% endblock %}

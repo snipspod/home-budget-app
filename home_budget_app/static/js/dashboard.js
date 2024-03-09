@@ -1,20 +1,35 @@
 const ctx = document.getElementById('sampleChart');
 
-new Chart(ctx, {
-  type: 'bar',
-  data: {
-    labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-    datasets: [{
-      label: '# of Votes',
-      data: [12, 19, 3, 5, 2, 3],
-      borderWidth: 1
-    }]
-  },
-  options: {
-    scales: {
-      y: {
-        beginAtZero: true
-      }
+const categoriesSpent = getData(_categories_spent)
+console.log(categoriesSpent)
+
+function getData(data) {
+    return JSON.parse(data)
+}
+
+  new Chart(
+    ctx,
+    {
+        type: 'doughnut',
+        data: {
+            labels: categoriesSpent.map(row => row.name),
+            datasets: [
+                {
+                    data: categoriesSpent.map(row => row.sum)
+                }
+            ]
+        },
+        options: {
+            animation: false,
+            plugins:{
+                legend: {
+                    display: true,
+                    labels: {
+                        color: '#FFFFFF',
+                        borderColor: "#000000"
+                    }
+                }
+            }
+        }
     }
-  }
-});
+  );
