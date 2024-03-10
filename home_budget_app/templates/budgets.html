@@ -15,11 +15,15 @@
         </div>
 
         <div class="row mb-3">
-            <div class="col-10 d-grid mx-auto">
-                <button type="button" class="btn btn-lg btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalAdd">
-                    <span>Zdefiniuj nowy budżet</span>
-                </button>
-            </div>
+            {% if categories %}
+                <div class="col-10 d-grid mx-auto">
+                    <button type="button" class="btn btn-lg btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalAdd">
+                        <span>Zdefiniuj nowy budżet</span>
+                    </button>
+                </div>
+            {% else %}
+                <h1 class="display-6 fw-semibold">Przed stworzeniem budżetu, musisz stworzyć <a href="{{ url_for('categories.index') }}">kategorie.</a></h1>
+            {% endif %}
         </div>
         <div class="row">
             <div class="col-12">

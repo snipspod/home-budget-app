@@ -20,7 +20,6 @@ def index():
     categories = get_user_categories(g.user['email'])
     budgets = get_user_budgets(g.user['email'])
 
-    print(budgets)
     return render_template('budgets.html', categories=categories, budgets=budgets)
 
 @bp.route('/add-budget', methods=('POST',))

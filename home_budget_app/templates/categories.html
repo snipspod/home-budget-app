@@ -38,19 +38,23 @@
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">Twoje kategorie</h5>
-                        <div class="group">
-                            {% for category in categories %}
-                            <div class="mb-3 d-grid gap-2 col-6 mx-auto dropend">
-                                <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    {{ category['name'] }}
-                                </button>
-                                <ul class="dropdown-menu">
-                                    <li><button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#modalUpdate" data-bs-category="{{ category }}">Edytuj</button></li>
-                                    <li><button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#modalDelete" data-bs-category="{{ category }}">Usuń</button></li>
-                                </ul>
+                        {% if categories %}
+                            <div class="group">
+                                {% for category in categories %}
+                                <div class="mb-3 d-grid gap-2 col-6 mx-auto dropend">
+                                    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        {{ category['name'] }}
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#modalUpdate" data-bs-category="{{ category }}">Edytuj</button></li>
+                                        <li><button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#modalDelete" data-bs-category="{{ category }}">Usuń</button></li>
+                                    </ul>
+                                </div>
+                                {% endfor %}
                             </div>
-                            {% endfor %}
-                        </div>
+                        {% else %}
+                            <p class="fw-light">Nie dodałeś jeszcze żadnych kategorii.</p>
+                        {% endif %}
                     </div>
                 </div>
             </div>

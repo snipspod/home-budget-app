@@ -21,7 +21,7 @@ def create_user(name, email, password, password_confirm):
         'status': 'active',
     }
 
-    if password is not password_confirm:
+    if password != password_confirm:
         return {'result': 'danger',
                 'message': {'header': 'Niepowodzenie!',
                             'body': 'Podane hasła nie są zgodne!'}}
@@ -31,11 +31,11 @@ def create_user(name, email, password, password_confirm):
             users_collection.insert_one(user)
             return {'result': 'success',
                     'message': {'header': 'Udało się!',
-                                'message': 'Użytkownik pomyślnie zarejestrowany!'}}
+                                'body': 'Użytkownik pomyślnie zarejestrowany!'}}
         except Exception as e:
             return {'result': 'danger',
                     'message': {'header': 'Nieznany błąd',
-                                'message': e}}
+                                'body': e}}
     else:
         return {'result': 'danger',
                 'message': {'header': 'Niepowodzenie',
@@ -525,6 +525,51 @@ def get_last_month_expense_sum_by_category(email):
         expenses = expenses_collection.aggregate([{'$match':{'email': email,'date_at':{'$gte':date_now,'$lte':date_last}}},{'$group':{'_id':'$category_id','sum':{'$sum':'$amount'}}},{'$lookup':{'from':'Categories','localField':'_id','foreignField':'_id','as':'result'}},{'$unwind':{'path':'$result'}},{'$project':{'sum':1,'_id':0,'name':'$result.name'}}])
 
         return parse_json(expenses)
+
+    except Exception as e:
+        return e
+    
+def get_expense_sum_per_month(email):
+    try: 
+        DB = app.db_connection.home_budget_app
+        expenses_collection = DB['Expenses']
+        oldest_date = datetime(datetime.now().year - 1, datetime.now().month, 1)
+
+        sum_per_month = parse_json(expenses_collection.aggregate([{'$match':{'email':email, 'date_at': {'$gte': oldest_date}}},{'$project':{'amount':1,'month_at':{'$dateFromParts':{'year':{'$year':'$date_at'},'month':{'$month':'$date_at'}}}}},{'$group':{'_id':'$month_at','spent':{'$sum':'$amount'}}},{'$sort': {'_id': 1}},{'$project':{'_id':0,'month':{'$dateToString': {'format': '%B %Y','date': '$_id'}},'spent':1}}]))
+
+        lookup_table = {
+            'January': 'Styczeń',
+            'February': 'Luty',
+            'March': 'Marzec',
+            'April': 'Kwiecień',
+            'May': 'Maj',
+            'June': 'Czerwiec',
+            'July': 'Lipiec',
+            'August': 'Sierpień',
+            'September': 'Wrzesień',
+            'October': 'Pażdziernik',
+            'November': 'Listopad',
+            'Decebmer': 'Grudzień'
+        }
+
+        for month in sum_per_month:
+            for key in lookup_table:
+                month['month'] = month['month'].replace(key, lookup_table[key])
+
+        return sum_per_month
+
+    except Exception as e:
+        return e
+    
+
+def get_budgets_realization(email):
+    try: 
+        DB = app.db_connection.home_budget_app
+        expenses_collection = DB['Budgets']
+
+        budgets_realization = expenses_collection.aggregate([{'$match':{'email':email}},{'$project':{'_id':0,'name':1,'realization':{'$round':[{'$divide':['$spent','$amount']},2]},'label':{'$concat':[{'$toString':'$spent'},' / ',{'$toString':'$amount'},' zł']}}}])
+
+        return parse_json(budgets_realization)
 
     except Exception as e:
         return e
