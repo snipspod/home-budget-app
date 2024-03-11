@@ -7,8 +7,10 @@ let description = document.querySelector('#description')
 let expenseId = document.querySelectorAll('#expense_id')
 
 let table = new DataTable('#expenses', {
+    responsive: true,
     columnDefs: [
-        { orderable: false, targets: 6 }
+        { responsivePriority: 1, orderable: false, targets: 6 },
+        { targets: 2, render: DataTable.render.ellipsis( 15, true ) }
     ]
 })
 

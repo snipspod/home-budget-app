@@ -16,7 +16,7 @@
         </div>
 
         <div class="row justify-content-center">
-            <div class="col-lg-7 text-center">
+            <div class="col-lg-7 text-center mb-2">
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">Dodaj kategorię</h5>
@@ -41,7 +41,7 @@
                         {% if categories %}
                             <div class="group">
                                 {% for category in categories %}
-                                <div class="mb-3 d-grid gap-2 col-6 mx-auto dropend">
+                                <div class="mb-3 d-grid gap-2 col-6 mx-auto dropdown">
                                     <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                         {{ category['name'] }}
                                     </button>

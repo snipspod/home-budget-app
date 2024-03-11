@@ -98,10 +98,10 @@
         <div class="row my-4">
             <div class="col-12">
                 <h1 class="display-6 mb-3">Stan kont</h1>
-                <div class="row">
+                <div class="row justify-content-xl-center">
                     {% if accounts %}
                         {% for account in accounts %}
-                        <div class="col-lg-3">
+                        <div class="col-md-4">
                             <div class="card text-bg-secondary mb-3 text-center mx-auto" style="max-width: 18rem;">
                                 <div class="card-header h6">{{ account['name'] }}</div>
                                 <div class="card-body">
@@ -155,7 +155,7 @@
         <!-- CHARTS SECTION -->
         <div class="row my-4 justify-content-center">
             <h1 class="display-6 mb-3">Statystyki</h1>
-            <div class="col-6">
+            <div class="col-md-6">
                 <h5 class="h5 mb-3 fw-normal">Suma wydatków per kategoria</h5>
                 {% if categories_spent %}
                     <div>
@@ -165,7 +165,7 @@
                     <p class="fw-light">Nie utworzyłeś jeszcze żadnych kategorii. <a href="{{ url_for('categories.index') }}">Dodaj je już teraz!</a></p>
                 {% endif %}
             </div>
-            <div class="col-6">
+            <div class="col-md-6">
                 <h5 class="h5 mb-3 fw-normal">Stopień realizacji budżetów</h5>
                 {% if budgets_realization %}
                     <div>
@@ -176,7 +176,7 @@
                 {% endif %}
             </div>
         </div>
-        <div class="row my-4">
+        <div class="row my-4 justify-content-center">
             <div class="col-12">
                 <h5 class="h5 mb-3 fw-normal">Suma wydatków per miesiąc</h5>
                 {% if expense_sum_per_month %}
