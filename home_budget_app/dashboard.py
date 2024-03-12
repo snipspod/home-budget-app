@@ -13,6 +13,7 @@ from home_budget_app.auth import login_required
 
 bp = Blueprint('dashboard', __name__, url_prefix='/dashboard')
 
+
 @bp.route('/', methods=('GET',))
 @login_required
 def index():
@@ -28,6 +29,7 @@ def index():
     budgets_realization = get_budgets_realization(g.user['email'])
 
     return render_template('dashboard.html', categories=categories, accounts=accounts, expenses=expenses, date=date, categories_spent=categories_spent, expense_sum_per_month=expense_sum_per_month, budgets_realization=budgets_realization)
+
 
 @bp.route('/add-expense', methods=("POST",))
 @login_required

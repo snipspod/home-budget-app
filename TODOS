@@ -7,5 +7,10 @@ PANEL KONTA:
 BUDŻETY:
 - usuniecie pol spent - wyciaganie tego na biezaco z wydatkow
 
-realizacja budzetow (wszystkich)
+
 tabela suma wydatkow per kategoria per miesiac za ostatnie 12 msc
+
+
+DOKONCZYC PISANIE EDYCJI BUDŻETÓW (dokonczenie HTMLa i uzupelniania pól w JSie)
+zaktualizować dane pobierane z grafów tak, aby było można podgladac realizacje budżetów za różne miesiące
+update pobierania budżetów - tylko te z obecnego miesiąca

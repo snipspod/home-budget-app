@@ -29,9 +29,8 @@ def add_budget():
     back = request.referrer
     name = request.form.get('budget_name')
     budget_amount = float(request.form.get('budget_amount').replace(',', '.'))
+    budget_month = int(request.form.get('budget_month'))
     assoc_categories = []
-
-    print(request.form)
 
     for key in request.form.keys():
         if 'include' in key:
@@ -42,6 +41,27 @@ def add_budget():
                 }
             )
 
-    db_result = add_budget(g.user['email'], name, budget_amount, assoc_categories)
+    db_result = add_budget(g.user['email'], name, budget_amount, assoc_categories, budget_month)
     flash(db_result['message'], db_result['result'])
+    return redirect(back)
+
+@bp.route('/update-budget', methods=('POST',))
+@login_required
+def update_budget():
+    from home_budget_app.db import update_budget
+    back = request.referrer
+    return redirect(back)
+
+@bp.route('/delete-budget', methods=('POST',))
+@login_required
+def delete_budget():
+    from home_budget_app.db import delete_budget
+    back = request.referrer
+
+    budget_id = request.form.get('budget_id')
+
+    db_result = delete_budget(budget_id)
+        
+    flash(db_result['message'], db_result['result'])
+    
     return redirect(back)

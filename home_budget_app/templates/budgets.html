@@ -37,12 +37,22 @@
                                 </div>
                                 <div class="card-body">
                                     <div class="spent-total">
-                                        <p>Wydano łącznie: <span>{{ budget['spent'] }} / {{ budget['amount'] }}</span>zł</p>
+                                        <p class="fw-bold text-center fs-5 text-info">{{ budget['spent'] }} / {{ budget['amount'] }}</span>zł</p>
                                     </div>
                                     <div class="spent-categories">
                                         {% for category in budget['assoc_categories'] %}
-                                            <p>{{ category['name'] }}: {{ category['spent'] }} / {{ category['amount'] }}zł</p>
+                                        <div class="d-flex justify-content-between">
+                                            <span>{{ category['name'] }}</span> <span>{{ category['spent'] }} / {{ category['amount'] }}zł</span>
+                                        </div>
                                         {% endfor %}
+                                    </div>
+                                    <div class="row">
+                                        <div class="col d-grid">
+                                            <button type="button" data-bs-toggle="modal" data-bs-target="#modalUpdate" data-budget="{{ budget['_id']['$oid'] }}" data-amount="{{ budget['amount'] }}" data-month="{{ budget['budget_month'] }}" class="btn btn-outline-secondary btn-sm">Edytuj</button>
+                                        </div>
+                                        <div class="col d-grid">
+                                             <button type="button" data-bs-toggle="modal" data-bs-target="#modalDelete" data-budget="{{ budget['_id']['$oid'] }}" class="btn btn-outline-danger btn-sm">Usuń</button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -55,6 +65,8 @@
         </div>
     </div>
 
+    <!-- ADD BUDGET MODAL -->
+
     <div class="modal modal-xl fade" id="modalAdd" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -66,13 +78,25 @@
                     <form method="POST" name="add_budget" id="add_budget" action="{{ url_for('budgets.add_budget') }}">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" form="add_budget">
                         <div class="row mb-3">
-                            <div class="col-6 form-floating">
+                            <div class="col-5 form-floating">
                                 <input type="text" form="add_budget" name="budget_name" id="budget_name" class="form-control" placeholder="Nazwa budżetu" required>
                                 <label for="budget_name" class="form-label ms-2">Nazwa budżetu</label>
                             </div>
-                            <div class="col-6 form-floating">
+                            <div class="col-5 form-floating">
                                 <input type="text" form="add_budget" name="budget_amount" id="budget_amount" class="form-control" placeholder="Kwota budżetu" pattern="^(([1-9]\d{0,2}(\d{3})*)|\d+)?(,\d{1,2})?$" title="Podaj wartość całkowitą, lub po przecinku np. 0,25, 30, 21,3" required>
                                 <label for="budget_amount" class="form-label ms-2">Kwota budżetu</label>
+                            </div>
+                            <div class="col-2">
+                                <label for="budget_month">Miesiąc budżetu</label>
+                                <select name="budget_month" id="budget_month" form="add_budget" class="form-select">
+                                    {% for n in range(12) %}
+                                        {% if loop.first %}
+                                            <option selected value="{{ n + 1 }}">{{ n + 1 }}</option>
+                                        {% else %}
+                                            <option value="{{ n + 1 }}">{{ n + 1 }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
                             </div>
                         </div>
                         <div class="row">
@@ -107,6 +131,73 @@
         </div>
     </div>
 
+    <!-- EDIT BUDGET MODAL -->
+
+    <div class="modal fade" id="modalUpdate" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title">Edytuj budżet</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{url_for('budgets.update_budget')}}" method="POST" name="update_budget" id="update_budget">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" form="update_budget">
+                        <input type="hidden" name="budget_id" id="budget_id" form="update_budget">
+                        <div class="mb-3">
+                            <label for="new_budget_name" class="form-label">Nazwa</label>
+                            <input type="text" form="update_budget" name="new_budget_name" id="new_budget_name" value="", class="form-control" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-8 mb-3">
+                            <label for="new_budget_amount">Kwota budżetu</label>
+                            <input type="text" form="update_budget" name="new_budget_amount" id="new_budget_amount" class="form-control mb-3" pattern="^(([1-9]\d{0,2}(\d{3})*)|\d+)?(,\d{1,2})?$" title="Podaj wartość całkowitą, lub po przecinku np. 0,25, 30, 21,3" required>
+                        </div>
+                        <div class="col-4 mb-3">
+                            <label for="budget_month">Miesiąc budżetu</label>
+                                <select name="new_budget_month" id="new_budget_month" form="update_budget" class="form-select">
+                                    {% for n in range(12) %}
+                                        {% if loop.first %}
+                                            <option selected value="{{ n + 1 }}">{{ n + 1 }}</option>
+                                        {% else %}
+                                            <option value="{{ n + 1 }}">{{ n + 1 }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                        </div>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success" form="update_account">Zapisz</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DELETE BUDGET MODAL -->
+
+
+    <div class="modal fade" id="modalDelete" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <h5 class="text-warning">Czy na pewno chcesz usunąć budżet <span class="fst-italic"></span>?</h5>
+                </div>
+                <div class="modal-footer">
+                    <form action="{{ url_for('budgets.delete_budget') }}" name="delete_budget" id="delete_budget" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" form="delete_budget">
+                        <input type="hidden" name="budget_id" id="budget_id" form="delete_budget">
+                        <button class="btn btn-danger" type="submit" form="delete_budget">Usuń</button>
+                    </form>
+                    <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Anuluj</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" defer>
+        let _budgets = `{{ budgets|tojson }}`
+    </script>
     <script src="{{ url_for('static', filename='js/budgets.js') }}" defer></script>
 
 {% endblock %}

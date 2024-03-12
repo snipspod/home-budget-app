@@ -55,7 +55,6 @@ def register():
             
         flash(db_result['message'], db_result['result'])
         if db_result['result'] == 'success':
-            print(session.get('user_email'))
             return redirect(url_for('auth.login'))
         else:
             return redirect(url_for('auth.register'))

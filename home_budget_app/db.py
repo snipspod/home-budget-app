@@ -133,7 +133,7 @@ def add_account(email, account_name, start_balance, cyclical,income_amount, inco
                             'body': e}} 
     
 
-def add_budget(email, name, amount, assoc_categories):
+def add_budget(email, name, amount, assoc_categories, budget_month):
     try:
         DB = app.db_connection.home_budget_app
         budgets_collection = DB['Budgets']
@@ -150,17 +150,25 @@ def add_budget(email, name, amount, assoc_categories):
                 'message': {'header': 'Błąd!',
                             'body': f'Podany kwota budżetu: {amount}zł. Suma kategorii: {round(category_sum, 2)}zł.'}}
         
+        if budget_month > 12 or budget_month < 1:
+            return {'result': 'danger',
+                'message': {'header': 'Błąd!',
+                            'body': f'W roku nie istnieje miesiąc {budget_month}'}}
+        
         if budgets_collection.find_one({'name': name}):
             return {'result': 'danger',
                 'message': {'header': 'Nie udało się dodać budżetu!',
                             'body': f'Posiadasz już budżet o nazwie {name}'}}
+        
+        budget_month = datetime(datetime.now().year, budget_month, 1)
         
         budget = {
             'email': email,
             'name': name,
             'amount': amount,
             'spent': 0,
-            'assoc_categories': assoc_categories
+            'assoc_categories': assoc_categories,
+            'budget_month': budget_month
         }
         
         budgets_collection.insert_one(budget)
@@ -242,6 +250,23 @@ def update_category(category_id, category_new):
         category_id = ObjectId(category_id)
 
         categories_collection.update_one({'_id': category_id}, {'$set': {'name': category_new}})
+
+        return {'result': 'success',
+                'message': {'header': 'Wohoo!',
+                            'body': 'Pomyślnie zaktualizowano kategorię!'}}
+
+    except Exception as e:
+        return {'result': 'danger',
+                'message': {'header': 'Nieznany błąd!',
+                            'body': e}}
+    
+def update_budget(budget_id, budget_month, amount, name, assoc_categories):
+    try:
+        DB = app.db_connection.home_budget_app
+        budgets_collection = DB['Budgets']
+
+        budget_id = ObjectId(budget_id)
+
 
         return {'result': 'success',
                 'message': {'header': 'Wohoo!',
@@ -376,6 +401,24 @@ def delete_account(account_id):
         return {'result': 'danger',
                 'message': {'header': 'Nieznany błąd!',
                             'body': e}}
+    
+def delete_budget(budget_id):
+    try:
+        DB = app.db_connection.home_budget_app
+        budgets_collection = DB['Budgets']
+
+        budget_id = ObjectId(budget_id)
+
+        budgets_collection.delete_one({'_id': budget_id})
+        
+        return {'result': 'success',
+                'message': {'header': 'Powodzenie!',
+                            'body': 'Pomyślnie usunięto budżet!'}}
+    
+    except Exception as e:
+        return {'result': 'danger',
+                'message': {'header': 'Nieznany błąd!',
+                            'body': e}}
 
 
 #! GET METHODS
@@ -462,7 +505,7 @@ def get_user_budgets(email):
         budgets_collection = DB['Budgets']
         
         # budgets = budgets_collection.find({'email': email})
-        budgets = budgets_collection.aggregate([{'$match':{'email':email}},{'$lookup':{'from':'Categories','localField':'assoc_categories.category_id','foreignField':'_id','as':'category_details'}},{'$project':{'email':1,'name':1,'amount':1,'spent':1,'assoc_categories':{'$map':{'input':'$assoc_categories','in':{'$let':{'vars':{'m':{'$arrayElemAt':[{'$filter':{'input':'$category_details','cond':{'$eq':['$$mb._id','$$this.category_id']},'as':'mb'}},0]}},'in':{'$mergeObjects':['$$this',{'name':'$$m.name'}]}}}}}}}])
+        budgets = budgets_collection.aggregate([{'$match':{'email':email}},{'$lookup':{'from':'Categories','localField':'assoc_categories.category_id','foreignField':'_id','as':'category_details'}},{'$project':{'email':1,'name':1,'amount':1,'spent':1,'budget_month':{'$month': '$budget_month'},'assoc_categories':{'$map':{'input':'$assoc_categories','in':{'$let':{'vars':{'m':{'$arrayElemAt':[{'$filter':{'input':'$category_details','cond':{'$eq':['$$mb._id','$$this.category_id']},'as':'mb'}},0]}},'in':{'$mergeObjects':['$$this',{'name':'$$m.name'}]}}}}}}}])
 
 
 
@@ -585,7 +628,6 @@ def cyclical_budget_update(email):
         accounts = parse_json(accounts)
 
         for account in accounts:
-            print(account)
             income_date = datetime.strptime(account['next_income_date']['$date'], "%Y-%m-%dT%H:%M:%SZ")
             
             if datetime.now() >= income_date:

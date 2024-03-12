@@ -158,8 +158,8 @@
             <div class="col-md-6">
                 <h5 class="h5 mb-3 fw-normal">Suma wydatków per kategoria</h5>
                 {% if categories_spent %}
-                    <div>
-                        <canvas id="categories-last-month"></canvas>
+                    <div style="position: relative; width: 30vw; height: 40vh; margin: auto;">
+                        <canvas id="categories-last-month-graph"></canvas>
                     </div>
                 {% else %}
                     <p class="fw-light">Nie utworzyłeś jeszcze żadnych kategorii. <a href="{{ url_for('categories.index') }}">Dodaj je już teraz!</a></p>
@@ -168,8 +168,8 @@
             <div class="col-md-6">
                 <h5 class="h5 mb-3 fw-normal">Stopień realizacji budżetów</h5>
                 {% if budgets_realization %}
-                    <div>
-                        <canvas id="budgets-realization"></canvas>
+                    <div style="position: relative; width: 30vw; height: 40vh; margin: auto;">
+                        <canvas id="budgets-realization-graph"></canvas>
                     </div>
                 {% else %}
                     <p class="fw-light">Nie zdefiniowałeś jeszcze żadnych budżetów. <a href="{{ url_for('budgets.index') }}">Dodaj je już teraz!</a></p>
@@ -180,8 +180,8 @@
             <div class="col-12">
                 <h5 class="h5 mb-3 fw-normal">Suma wydatków per miesiąc</h5>
                 {% if expense_sum_per_month %}
-                    <div>
-                        <canvas id="expense-sum-per-month"></canvas>
+                    <div style="position: relative; width: 65vw; height: 35vh; margin: auto;">
+                        <canvas id="expense-sum-per-month-graph"></canvas>
                     </div>
                     {% else %}
                         <p class="fw-light">Nie dodałeś jeszcze żadnych wydatków.</p>

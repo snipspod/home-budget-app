@@ -1,6 +1,6 @@
-const categoriesLastMonthChart = document.getElementById('categories-last-month');
-const expenseSumPerMonthChart = document.getElementById('expense-sum-per-month');
-const budgetsRealizationChart = document.getElementById('budgets-realization');
+const categoriesLastMonthChart = document.getElementById('categories-last-month-graph');
+const expenseSumPerMonthChart = document.getElementById('expense-sum-per-month-graph');
+const budgetsRealizationChart = document.getElementById('budgets-realization-graph');
 
 const categoriesSpentLastMonthData = getData(_categories_spent)
 const expenseSumPerMonthData= getData(_expense_sum_per_month)
@@ -25,6 +25,7 @@ new Chart(categoriesLastMonthChart,
             }]
         },
         options: {
+            maintainAspectRatio: false,
             animation: false,
             plugins: {
                 autocolors: {
@@ -52,6 +53,7 @@ new Chart(budgetsRealizationChart,
             }]
         },
         options: {
+            maintainAspectRatio: false,
             plugins: {
                 autocolors: {
                     mode: 'data',
@@ -94,6 +96,7 @@ new Chart(expenseSumPerMonthChart,
             }]
         },
         options: {
+            maintainAspectRatio: false,
             plugins: {
                 autocolors: {
                     offset: 5
