@@ -34,6 +34,7 @@ if (modalUpdate) {
         const cyclicalAmount = modalUpdate.querySelector('#income_amount')
         const cyclicalDay = modalUpdate.querySelector('#income_day')
         const accounts = getData(_accounts)
+        console.log(accounts)
 
         currentAccountData = accounts.find(({ _id }) => _id.$oid == accountId)
         if (currentAccountData.income_active) {

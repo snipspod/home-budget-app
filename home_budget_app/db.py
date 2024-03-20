@@ -267,6 +267,32 @@ def update_budget(budget_id, budget_month, amount, name, assoc_categories):
 
         budget_id = ObjectId(budget_id)
 
+        category_sum = 0
+        for category in assoc_categories:
+            category_sum += category['amount']
+            category['amount'] = round(category['amount'], 2)
+            category['category_id'] = ObjectId(category['category_id'])
+            category['spent'] = 0
+
+        if round(category_sum,2) != round(amount, 2):
+            return {'result': 'danger',
+                'message': {'header': 'Błąd!',
+                            'body': f'Podany kwota budżetu: {amount}zł. Suma kategorii: {round(category_sum, 2)}zł.'}}
+        
+        if budget_month > 12 or budget_month < 1:
+            return {'result': 'danger',
+                'message': {'header': 'Błąd!',
+                            'body': f'W roku nie istnieje miesiąc {budget_month}'}}
+        
+        if budgets_collection.find_one({'name': name}):
+            return {'result': 'danger',
+                'message': {'header': 'Nie udało się dodać budżetu!',
+                            'body': f'Posiadasz już budżet o nazwie {name}'}}
+        
+        budget_month = datetime(datetime.now().year, budget_month, 1)
+
+        budgets_collection.update_one({'_id': budget_id}, {'$set': {'assoc_categories': assoc_categories, 'budget_month': budget_month, 'name': name, 'amount': amount}})
+
 
         return {'result': 'success',
                 'message': {'header': 'Wohoo!',

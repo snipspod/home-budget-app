@@ -50,6 +50,24 @@ def add_budget():
 def update_budget():
     from home_budget_app.db import update_budget
     back = request.referrer
+    budget_name = request.form.get('new_budget_name')
+    budget_amount = float(request.form.get('new_budget_amount').replace(',', '.'))
+    budget_month = int(request.form.get('new_budget_month'))
+    budget_id = request.form.get('budget_id')
+    assoc_categories = []
+
+    for key in request.form.keys():
+        if 'include' in key:
+            assoc_categories.append(
+                {
+                    'category_id': key.removeprefix('include_'),
+                    'amount': budget_amount * float(request.form.get(f"percentage_{key.removeprefix('include_')}"))/100.0
+                }
+            )
+        
+    db_result = update_budget(budget_id, budget_month, budget_amount, budget_name, assoc_categories)
+    flash(db_result['message'], db_result['result'])
+
     return redirect(back)
 
 @bp.route('/delete-budget', methods=('POST',))

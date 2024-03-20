@@ -48,10 +48,10 @@
                                     </div>
                                     <div class="row">
                                         <div class="col d-grid">
-                                            <button type="button" data-bs-toggle="modal" data-bs-target="#modalUpdate" data-budget="{{ budget['_id']['$oid'] }}" data-amount="{{ budget['amount'] }}" data-month="{{ budget['budget_month'] }}" class="btn btn-outline-secondary btn-sm">Edytuj</button>
+                                            <button type="button" data-bs-toggle="modal" data-bs-target="#modalUpdate" data-budgetid="{{ budget['_id']['$oid'] }}" data-amount="{{ budget['amount'] }}" data-month="{{ budget['budget_month'] }}" data-name="{{ budget['name'] }}" data-categories="{{ budget['assoc_categories'] }}" class="btn btn-outline-secondary btn-sm">Edytuj</button>
                                         </div>
                                         <div class="col d-grid">
-                                             <button type="button" data-bs-toggle="modal" data-bs-target="#modalDelete" data-budget="{{ budget['_id']['$oid'] }}" class="btn btn-outline-danger btn-sm">Usuń</button>
+                                             <button type="button" data-bs-toggle="modal" data-bs-target="#modalDelete" data-budget="{{ budget['_id']['$oid'] }}" data-name="{{ budget['name'] }}" class="btn btn-outline-danger btn-sm">Usuń</button>
                                         </div>
                                     </div>
                                 </div>
@@ -152,22 +152,28 @@
                             <div class="col-8 mb-3">
                             <label for="new_budget_amount">Kwota budżetu</label>
                             <input type="text" form="update_budget" name="new_budget_amount" id="new_budget_amount" class="form-control mb-3" pattern="^(([1-9]\d{0,2}(\d{3})*)|\d+)?(,\d{1,2})?$" title="Podaj wartość całkowitą, lub po przecinku np. 0,25, 30, 21,3" required>
+                            </div>
+                            <div class="col-4 mb-3">
+                                <label for="budget_month">Miesiąc budżetu</label>
+                                    <select name="new_budget_month" id="new_budget_month" form="update_budget" class="form-select">
+                                        {% for n in range(12) %}
+                                            {% if loop.first %}
+                                                <option selected value="{{ n + 1 }}">{{ n + 1 }}</option>
+                                            {% else %}
+                                                <option value="{{ n + 1 }}">{{ n + 1 }}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                            </div>
                         </div>
-                        <div class="col-4 mb-3">
-                            <label for="budget_month">Miesiąc budżetu</label>
-                                <select name="new_budget_month" id="new_budget_month" form="update_budget" class="form-select">
-                                    {% for n in range(12) %}
-                                        {% if loop.first %}
-                                            <option selected value="{{ n + 1 }}">{{ n + 1 }}</option>
-                                        {% else %}
-                                            <option value="{{ n + 1 }}">{{ n + 1 }}</option>
-                                        {% endif %}
-                                    {% endfor %}
-                                </select>
-                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="d-flex flex-wrap justify-content-between" id="new_budget_categories">
+                                </div>
+                            </div>
                         </div>
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-success" form="update_account">Zapisz</button>
+                            <button type="submit" class="btn btn-success" form="update_budget">Zapisz</button>
                         </div>
                     </form>
                 </div>
@@ -197,6 +203,7 @@
     </div>
     <script type="text/javascript" defer>
         let _budgets = `{{ budgets|tojson }}`
+        let _categories = `{{ categories|tojson }}`
     </script>
     <script src="{{ url_for('static', filename='js/budgets.js') }}" defer></script>
 
