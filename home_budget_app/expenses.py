@@ -53,9 +53,8 @@ def add_multiple_expenses():
           amount = float(amount.replace(',','.'))
           description = description.strip()
           date = datetime.strptime(date, "%Y-%m-%d")
-          add_single_expense(g.user['email'], amount, date, account, category, description)
-          print (amount, description, category, account, date)
-
+          db_result = add_single_expense(g.user['email'], amount, date, account, category, description)
+          flash(db_result['message'], db_result['result'])
 
     return redirect(back)
 

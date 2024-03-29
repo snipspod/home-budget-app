@@ -43,35 +43,33 @@ def create_user(name, email, password, password_confirm):
     
  
 def add_single_expense(email, amount, date, account_id, category_id, description):
-    DB = app.db_connection.home_budget_app
-    expenses_collection = DB["Expenses"]
-    accounts_collection = DB['Accounts']
-    budgets_collection = DB['Budgets']
-
-    category_id = ObjectId(category_id)
-    account_id = ObjectId(account_id)
-
-    account_details = accounts_collection.find_one({'_id': account_id}, projection={'balance': True, 'name': True})
-
-    if amount > account_details['balance']:
-        return {'result': 'danger',
-                'message': {'header': 'Nie udało się!',
-                            'body': f'Nie udało się dodać wydatku {description}. Na koncie {account_details["name"]} nie ma wystarczająco środków!'}}
-
-    expense = {
-        'email': email,
-        'description': description,
-        'category_id': category_id,
-        'account_id': account_id,
-        'amount': amount,
-        'date_at': date,
-        'date_submitted': datetime.now(),
-    }
-    
     try:
+        DB = app.db_connection.home_budget_app
+        expenses_collection = DB["Expenses"]
+        accounts_collection = DB['Accounts']
+
+        category_id = ObjectId(category_id)
+        account_id = ObjectId(account_id)
+
+        account_details = accounts_collection.find_one({'_id': account_id}, projection={'balance': True, 'name': True})
+
+        if amount > account_details['balance']:
+            return {'result': 'danger',
+                    'message': {'header': 'Nie udało się!',
+                                'body': f'Nie udało się dodać wydatku {description}. Na koncie {account_details["name"]} nie ma wystarczająco środków!'}}
+
+        expense = {
+            'email': email,
+            'description': description,
+            'category_id': category_id,
+            'account_id': account_id,
+            'amount': amount,
+            'date_at': date,
+            'date_submitted': datetime.now(),
+        }
+    
         expenses_collection.insert_one(expense)
         accounts_collection.update_one({'_id': account_id}, {'$inc': {'balance': -(amount)}})
-        budgets_collection.update_many({'assoc_categories': {'$elemMatch': {'category_id': category_id}}}, {'$inc': {'spent': amount, 'assoc_categories.$[idx].spent': amount}}, array_filters=[{'idx.category_id': category_id}])
         return {'result': 'success',
                 'message': {'header': 'Wohoo!',
                             'body': 'Pomyślnie dodano wydatek!'}}
@@ -155,11 +153,6 @@ def add_budget(email, name, amount, assoc_categories, budget_month):
                 'message': {'header': 'Błąd!',
                             'body': f'W roku nie istnieje miesiąc {budget_month}'}}
         
-        if budgets_collection.find_one({'name': name}):
-            return {'result': 'danger',
-                'message': {'header': 'Nie udało się dodać budżetu!',
-                            'body': f'Posiadasz już budżet o nazwie {name}'}}
-        
         budget_month = datetime(datetime.now().year, budget_month, 1)
         
         budget = {
@@ -218,6 +211,7 @@ def update_expense(expense_id, amount, category_id, date, account_id, descriptio
         DB = app.db_connection.home_budget_app
         expenses_collection = DB["Expenses"]
         accounts_collection = DB['Accounts']
+        budgets_collection = DB['Budgets']
 
         expense_id = ObjectId(expense_id)
         account_id = ObjectId(account_id)
@@ -228,7 +222,6 @@ def update_expense(expense_id, amount, category_id, date, account_id, descriptio
         account_difference = old_expense_amount - amount
 
         accounts_collection.find_one_and_update({'_id': account_id}, {'$inc': {'balance': account_difference}})
-        
 
         expenses_collection.find_one_and_update({'_id': expense_id}, {'$set': {'amount': amount, 'category_id': category_id, 'date_at': date, 'account_id': account_id, 'description': description}})
 
@@ -283,11 +276,6 @@ def update_budget(budget_id, budget_month, amount, name, assoc_categories):
             return {'result': 'danger',
                 'message': {'header': 'Błąd!',
                             'body': f'W roku nie istnieje miesiąc {budget_month}'}}
-        
-        if budgets_collection.find_one({'name': name}):
-            return {'result': 'danger',
-                'message': {'header': 'Nie udało się dodać budżetu!',
-                            'body': f'Posiadasz już budżet o nazwie {name}'}}
         
         budget_month = datetime(datetime.now().year, budget_month, 1)
 
@@ -505,7 +493,7 @@ def get_user_accounts(email):
     try:
         DB = app.db_connection.home_budget_app
         accounts_collection = DB["Accounts"]
-        accounts = accounts_collection.find({'email': email}, projection={'balance':True, 'name': True, 'income_active': True, 'income': True, 'next_income_date': True})
+        accounts = accounts_collection.aggregate([{'$match':{'email':email}},{'$project':{'balance':{'$round':['$balance',2]},'income_active':1,'income':1,'name':1,'next_income_date':1}}])
         return parse_json(accounts)
     except Exception as e:
         return e
@@ -529,11 +517,48 @@ def get_user_budgets(email):
     try:
         DB = app.db_connection.home_budget_app
         budgets_collection = DB['Budgets']
+        expenses_collection = DB['Expenses']
+        date_now = datetime(datetime.now().year, datetime.now().month, 1)
+        date_last = last_day_of_month(date_now)
+
+        expenses = parse_json(expenses_collection.aggregate([{'$match':{'email': email,'date_at':{'$gte':date_now,'$lte':date_last}}},{'$group':{'_id':'$category_id','sum':{'$sum':'$amount'}}},{'$lookup':{'from':'Categories','localField':'_id','foreignField':'_id','as':'result'}},{'$unwind':{'path':'$result'}},{'$project':{'sum':1,'_id':0,'category_id':'$result._id', 'category_name':'$result.name'}}]))
         
-        # budgets = budgets_collection.find({'email': email})
-        budgets = budgets_collection.aggregate([{'$match':{'email':email}},{'$lookup':{'from':'Categories','localField':'assoc_categories.category_id','foreignField':'_id','as':'category_details'}},{'$project':{'email':1,'name':1,'amount':1,'spent':1,'budget_month':{'$month': '$budget_month'},'assoc_categories':{'$map':{'input':'$assoc_categories','in':{'$let':{'vars':{'m':{'$arrayElemAt':[{'$filter':{'input':'$category_details','cond':{'$eq':['$$mb._id','$$this.category_id']},'as':'mb'}},0]}},'in':{'$mergeObjects':['$$this',{'name':'$$m.name'}]}}}}}}}])
+        budgets = parse_json(budgets_collection.aggregate([{'$match':{'email':email, 'budget_month': date_now}},{'$lookup':{'from':'Categories','localField':'assoc_categories.category_id','foreignField':'_id','as':'category_details'}},{'$project':{'name':1,'amount':1,'budget_month':{'$month': '$budget_month'},'assoc_categories':{'$map':{'input':'$assoc_categories','in':{'$let':{'vars':{'m':{'$arrayElemAt':[{'$filter':{'input':'$category_details','cond':{'$eq':['$$mb._id','$$this.category_id']},'as':'mb'}},0]}},'in':{'$mergeObjects':['$$this',{'name':'$$m.name'}]}}}}}}}]))
 
+        for budget in budgets:
+            budget['spent'] = 0
+            for category in budget['assoc_categories']:
+                category['spent'] = 0
+                for expense in expenses:
+                    if ObjectId(category['category_id']['$oid']) == ObjectId(expense['category_id']['$oid']):
+                        category['spent'] = expense['sum']
+                        budget['spent'] += expense['sum']
 
+        return parse_json(budgets)
+    except Exception as e:
+        return e
+    
+def get_historical_user_budgets(email):
+    try:
+        DB = app.db_connection.home_budget_app
+        budgets_collection = DB['Budgets']
+        expenses_collection = DB['Expenses']
+        current_month = datetime(datetime.now().year, datetime.now().month, 1) - relativedelta(days=1)
+
+        expenses = parse_json(expenses_collection.aggregate([{'$match':{'email':email,'date_at':{'$lte':current_month}}},{'$group':{'_id':{'year':{'$year':'$date_at'},'month':{'$month':'$date_at'},'category_id':'$category_id'},'sum':{'$sum':'$amount'}}},{'$project':{'category_id':'$_id.category_id','expense_date':{'$concat':[{'$toString':'$_id.year'},'-',{'$cond':[{'$lte':['$_id.month',9]},{'$concat':['0',{'$substr':['$_id.month',0,2]}]},{'$substr':['$_id.month',0,2]}]}]},'sum':1,'_id':0}}]))
+        
+        budgets = parse_json(budgets_collection.aggregate([{'$match':{'email':email, 'budget_month': {'$lte': current_month}}},{'$lookup':{'from':'Categories','localField':'assoc_categories.category_id','foreignField':'_id','as':'category_details'}},{'$project':{'email':1,'name':1,'amount':1,'budget_date': {'$dateToString': {'date': '$budget_month', 'format': '%Y-%m'}},'assoc_categories':{'$map':{'input':'$assoc_categories','in':{'$let':{'vars':{'m':{'$arrayElemAt':[{'$filter':{'input':'$category_details','cond':{'$eq':['$$mb._id','$$this.category_id']},'as':'mb'}},0]}},'in':{'$mergeObjects':['$$this',{'name':'$$m.name'}]}}}}}}},{'$group':{'_id': "$budget_date",'budgets': {'$addToSet': "$$ROOT",},},},{'$project':{'date': "$_id",'_id': 0,'budgets': 1,},},{'$sort':{'date': 1},}]))
+
+        for month in budgets:
+            for budget in month['budgets']:
+                budget['spent'] = 0
+                for category in budget['assoc_categories']:
+                    category['spent'] = 0
+                    for expense in expenses:
+                        if ObjectId(category['category_id']['$oid']) == ObjectId(expense['category_id']['$oid']) and expense['expense_date'] == budget['budget_date']:
+                            category['spent'] = expense['sum']
+                            # print(category['spent'])
+                            budget['spent'] += expense['sum']
 
         return parse_json(budgets)
     except Exception as e:
@@ -544,6 +569,10 @@ def get_user_statistics(email):
         DB = app.db_connection.home_budget_app
         users_collection = DB["Users"]
         expenses_collection = DB["Expenses"]
+        accounts_collection = DB["Accounts"]
+
+        month_start = datetime(datetime.now().year, datetime.now().month, 1)
+        today = datetime.now()
 
         member_from = users_collection.find_one({'email': email}, projection={'created_at': True})['created_at']
 
@@ -556,27 +585,25 @@ def get_user_statistics(email):
             expense_sum = 0
 
 
-        # ! DO PRZEPISANIA NA NOWĄ KOLEKCJĘ ACCOUNTS
+        account_count = accounts_collection.count_documents({'email': email})
 
-        # account_count = users_collection.aggregate([{'$match': {'email': email}}, {'$project': {'count': {'$size': '$accounts'}}}])
-        # account_count = parse_json(account_count)[0]['count']
-
-        # if account_count != 0:
-        #     account_sum = users_collection.find({'email': email}, {'sum': {'$sum': '$accounts.current_balance'}})
-        #     account_sum = parse_json(account_sum)[0]['sum']
-        # else:
-        #     account_sum = None
-
-
-        #TODO: kalkulowanie sredniej wydatków za ostatnie 30 dni
+        if account_count != 0:
+            account_sum = accounts_collection.aggregate([{'$match': {'email': email}}, {'$group': {'_id': 1, 'sum': {'$sum': '$balance'}}}])
+            account_sum = parse_json(account_sum)[0]['sum']
+        else:
+            account_sum = None
+        
+        expense_avg = expenses_collection.aggregate([{'$match':{'date_at':{'$gte':month_start,'$lte':today}, 'email': email}},{'$group':{'_id':'$email','expense_sum':{'$sum':'$amount'}}},{'$project':{'_id':0,'email':'$_id','average_expense':{'$divide':['$expense_sum',{'$dayOfMonth':'$$NOW'}]}}}])
+        expense_avg = round(parse_json(expense_avg)[0]['average_expense'],2)
+        
 
         return {
             'member_from': member_from,
             'expense_count': expense_count,
             'expense_sum': round(expense_sum, 2),
-            'account_count': 0,
-            'accounts_sum': 0,
-            'expense_avg': 0
+            'account_count': account_count,
+            'accounts_sum': account_sum,
+            'expense_avg': expense_avg
         }
 
 
@@ -592,7 +619,6 @@ def get_last_month_expense_sum_by_category(email):
         date_last = last_day_of_month(date_now)
 
         expenses = expenses_collection.aggregate([{'$match':{'email': email,'date_at':{'$gte':date_now,'$lte':date_last}}},{'$group':{'_id':'$category_id','sum':{'$sum':'$amount'}}},{'$lookup':{'from':'Categories','localField':'_id','foreignField':'_id','as':'result'}},{'$unwind':{'path':'$result'}},{'$project':{'sum':1,'_id':0,'name':'$result.name'}}])
-
         return parse_json(expenses)
 
     except Exception as e:
@@ -636,7 +662,7 @@ def get_budgets_realization(email):
         DB = app.db_connection.home_budget_app
         expenses_collection = DB['Budgets']
 
-        budgets_realization = expenses_collection.aggregate([{'$match':{'email':email}},{'$project':{'_id':0,'name':1,'realization':{'$round':[{'$divide':['$spent','$amount']},2]},'label':{'$concat':[{'$toString':'$spent'},' / ',{'$toString':'$amount'},' zł']}}}])
+        budgets_realization = expenses_collection.aggregate([{'$match':{'email':email}},{'$project':{'_id':0,'name':1,'realization':{'$round':[{'$divide':['$spent','$amount']},2]},'label':{'$concat':[{'$toString':'$spent'},' / ',{'$toString':'$amount'},' zł']},'budget_date':{'$dateToString':{'date':'$budget_month','format':'%Y-%m'}}}},{'$group':{'_id':'$budget_date','budgets':{'$addToSet':'$$ROOT'}}},{'$project':{'budgets':1,'date':'$_id','_id':0}}])
 
         return parse_json(budgets_realization)
 
@@ -657,7 +683,6 @@ def cyclical_budget_update(email):
             income_date = datetime.strptime(account['next_income_date']['$date'], "%Y-%m-%dT%H:%M:%SZ")
             
             if datetime.now() >= income_date:
-                print('DODAWANIE SRODKOW DO KONTA')
                 income = float(account['income'])
                 name = account['name']
                 next_income_date = income_date + relativedelta(months=1)

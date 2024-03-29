@@ -22,5 +22,7 @@ tableRows.forEach(row => {
         expenseId.forEach(field => {
             field.value = row.dataset.expenseid
         })
+        category.value = row.dataset.categoryid
+        account.value = row.dataset.accountid
     })
 });

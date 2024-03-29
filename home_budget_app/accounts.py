@@ -12,7 +12,7 @@ from home_budget_app.auth import login_required
 
 bp = Blueprint('accounts', __name__, url_prefix='/accounts')
 
-@bp.route('/', methods=('GET',))
+@bp.route('/', methods=('GET','PUT',))
 @login_required
 def index():
     from home_budget_app.db import get_user_accounts
@@ -45,7 +45,7 @@ def update_account():
     flash(db_result['message'], db_result['result'])
     return redirect(back)
 
-@bp.route('/delete-account', methods=('POST',))
+@bp.route('/delete-account', methods=['POST'])
 @login_required
 def delete_account():
     back = request.referrer
@@ -59,23 +59,23 @@ def delete_account():
     
     return redirect(back)
 
-@bp.route('/add-account', methods=('POST',))
+@bp.route('/add-account', methods=['POST'])
 @login_required
 def add_account():
     back = request.referrer
+    print('PUT')
 
     from home_budget_app.db import add_account
 
     account_name = request.form.get('account_name')
     start_balance = float(request.form.get('start_balance').replace(',','.'))
     cyclical = True if request.form.get('is_cyclical') else False
-    print(request.form.get('income_amount'))
     income_amount = float(request.form.get('income_amount'))
     income_amount = 0
     income_day = request.form.get('income_day')
 
     db_result = add_account(g.user['email'], account_name, start_balance, cyclical, income_amount, income_day)
-        
+            
 
     flash(db_result['message'], db_result['result'])
     return redirect(back)

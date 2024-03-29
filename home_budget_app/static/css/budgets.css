@@ -1,0 +1,4 @@
+.spent-category:last-child {
+    border-bottom: none !important;
+    margin-bottom: 1rem !important;
+}

@@ -54,8 +54,6 @@ def create_app():
     
     @app.template_filter()
     def format_datetime(value):
-        from datetime import datetime
-
         lookup_table = {
             'styczeĹ„': 'stycznia',
             'luty': 'lutego',
@@ -73,6 +71,32 @@ def create_app():
 
         locale.setlocale(locale.LC_TIME, "pl_PL.utf8")
         date = value.strftime("%d %B %Y")
+
+        for key in lookup_table:
+            date = date.replace(key, lookup_table[key])
+
+        return date
+    
+    @app.template_filter()
+    def format_date_to_monthyear(value):
+        from datetime import datetime
+        lookup_table = {
+            'styczeĹ„': 'Styczeń',
+            'luty': 'Luty',
+            'marzec': 'Marzec',
+            'kwiecieĹ„': 'Kwiecień',
+            'maj': 'Maj',
+            'czerwiec': 'Czerwiec',
+            'lipiec': 'Lipiec',
+            'sierpieĹ„': 'Sierpień',
+            'wrzesieĹ„': 'Wrzesień',
+            'paĹşdziernik': 'Październik',
+            'listopad': ':Listopad',
+            'grudzieĹ„': 'Grudzień'
+        }
+
+        locale.setlocale(locale.LC_TIME, "pl_PL.utf8")
+        date = datetime.strptime(value, "%Y-%m").strftime("%B %Y")
 
         for key in lookup_table:
             date = date.replace(key, lookup_table[key])

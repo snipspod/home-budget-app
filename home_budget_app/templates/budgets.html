@@ -1,5 +1,9 @@
 {% extends 'layout.html' %}
 
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/budgets.css') }}">
+{% endblock %}
+
 {% block title %}
     Budgets
 {% endblock %}
@@ -27,7 +31,7 @@
         </div>
         <div class="row">
             <div class="col-12">
-                <h1 class="display-6 mb-3">Twoje budżety</h1>
+                <h1 class="display-6 mb-3">Twoje aktualne budżety</h1>
                 <div class="d-flex flex-wrap justify-content-around">
                     {% if budgets %}
                         {% for budget in budgets %}
@@ -35,18 +39,18 @@
                                 <div class="card-header h4">
                                     {{ budget['name'] }}
                                 </div>
-                                <div class="card-body">
+                                <div class="card-body d-flex flex-column">
                                     <div class="spent-total">
                                         <p class="fw-bold text-center fs-5 text-info">{{ budget['spent'] }} / {{ budget['amount'] }}</span>zł</p>
                                     </div>
                                     <div class="spent-categories">
                                         {% for category in budget['assoc_categories'] %}
-                                        <div class="d-flex justify-content-between">
+                                        <div class="d-flex justify-content-between border-bottom mb-1 spent-category">
                                             <span>{{ category['name'] }}</span> <span>{{ category['spent'] }} / {{ category['amount'] }}zł</span>
                                         </div>
                                         {% endfor %}
                                     </div>
-                                    <div class="row">
+                                    <div class="row mt-auto">
                                         <div class="col d-grid">
                                             <button type="button" data-bs-toggle="modal" data-bs-target="#modalUpdate" data-budgetid="{{ budget['_id']['$oid'] }}" data-amount="{{ budget['amount'] }}" data-month="{{ budget['budget_month'] }}" data-name="{{ budget['name'] }}" data-categories="{{ budget['assoc_categories'] }}" class="btn btn-outline-secondary btn-sm">Edytuj</button>
                                         </div>
@@ -58,11 +62,42 @@
                             </div>
                         {% endfor %}
                     {% else %}
-                    <p class="fw-light">Nie posiadasz jeszcze żadnych budżetów!</p>
+                        <p class="fw-light">Nie posiadasz budżetów na aktualny miesiąc!</p>
                     {% endif %}
                 </div>
             </div>
         </div>
+        {% if historical_budgets %}
+        <h1 class="display-6 mb-3">Twoje budżety z poprzednich miesięcy</h1>
+        {% for budgets_month in historical_budgets %}
+            <div class="row">
+                <div class="col-12">
+                    <h4 class="h4 mb-3">{{ budgets_month['date']|format_date_to_monthyear }}</h4>
+                    <div class="d-flex flex-wrap justify-content-start">
+                        {% for budget in budgets_month['budgets'] %}
+                            <div class="card col-lg-3 m-2">
+                                <div class="card-header h4">
+                                    {{ budget['name'] }}
+                                </div>
+                                <div class="card-body d-flex flex-column">
+                                    <div class="spent-total">
+                                        <p class="fw-bold text-center fs-5 text-info">{{ budget['spent'] }} / {{ budget['amount'] }}</span>zł</p>
+                                    </div>
+                                    <div class="spent-categories">
+                                        {% for category in budget['assoc_categories'] %}
+                                        <div class="d-flex justify-content-between border-bottom mb-1 spent-category">
+                                            <span>{{ category['name'] }}</span> <span>{{ category['spent'] }} / {{ category['amount'] }}zł</span>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}        
+        {% endif %}
     </div>
 
     <!-- ADD BUDGET MODAL -->

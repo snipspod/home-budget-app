@@ -169,6 +169,7 @@
                 <h5 class="h5 mb-3 fw-normal">Stopień realizacji budżetów</h5>
                 {% if budgets_realization %}
                     <div style="position: relative; width: 30vw; height: 40vh; margin: auto;">
+                        <input type="month" class="form-control" id="budget-realization-month">
                         <canvas id="budgets-realization-graph"></canvas>
                     </div>
                 {% else %}

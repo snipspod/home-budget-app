@@ -23,7 +23,7 @@
                   {% if stats['expense_count'] != 0 %}
                     <li class="list-group-item">W naszej aplikacji zarejestrowałeś <span class="fw-bold text-start">{{ stats['expense_count'] }}</span> wydatków!</li>
                     <li class="list-group-item">Łączna kwota zarejestrowanych wydatków to <span class="fw-bold text-start">{{ stats['expense_sum'] }} zł!</span></li>
-                    <li class="list-group-item">Przez ostatnie 30 dni wydawałeś średnio <span class="fw-bold text-start">{{ stats['expense_avg'] }} zł</span> dziennie!</li>
+                    <li class="list-group-item">W obecnym miesiącu wydjesz średnio <span class="fw-bold text-start">{{ stats['expense_avg'] }} zł</span> dziennie!</li>
                   {% endif %}
                   {% if stats['account_count'] != 0 %}
                     <li class="list-group-item"><span class="fw-bold text-start">{{ stats['accounts_sum'] }} zł</span> - tyle wynosi suma pieniędzy na Twoich kontach!</li>
