@@ -1,4 +1,3 @@
-import os
 from flask import Flask
 from datetime import timedelta
 from dotenv import dotenv_values
@@ -23,7 +22,7 @@ def create_app():
             app.db_connection = MongoClient(app.config['MONGO_URI'])
             print('connected to db!')
         except Exception as e:
-            print(e)
+            print(f'An exception occured while connecting to DB :: {e}')
             return e
 
     from . import auth

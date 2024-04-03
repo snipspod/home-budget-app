@@ -17,9 +17,8 @@ bp = Blueprint("auth", __name__, url_prefix='/auth')
 def login():
     if request.method == "POST":
         from home_budget_app.db import authenticate_user
-
-        username = request.form['email']
-        password = request.form['password']
+        username = request.form.get('email')
+        password = request.form.get('password')
 
         db_result = authenticate_user(username, password)
 
@@ -31,13 +30,11 @@ def login():
             return redirect(url_for('dashboard.index'))
         else:
             flash(db_result['message'], db_result['result'])
-            # return redirect(url_for('auth.login'))
             
 
     if request.method == "GET":
         if g.user is not None:
             return redirect(url_for('dashboard.index'))
-
 
     return render_template("login.html")
 
@@ -46,10 +43,10 @@ def login():
 @bp.route('/register', methods=('GET', 'POST'))
 def register():
     if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
-        password_confirm = request.form['password_confirm']
-        name = request.form['name']
+        email = request.form.get('email')
+        password = request.form.get('password')
+        password_confirm = request.form.get('password_confirm')
+        name = request.form.get('name')
 
         db_result = create_user(name, email, password, password_confirm)
             

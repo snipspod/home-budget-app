@@ -68,12 +68,12 @@ def update_expense():
       
     back = request.referrer
 
-    expense_id = request.form['expense_id']
-    amount = float(request.form['amount'].replace(',','.'))
-    category_id = request.form['category']
-    date = datetime.strptime(request.form['date'], "%Y-%m-%d")
-    account_id = request.form['account']
-    description = request.form['description'].strip()
+    expense_id = request.form.get('expense_id')
+    amount = float(request.form.get('amount').replace(',','.'))
+    category_id = request.form.get('category')
+    date = datetime.strptime(request.form.get('date'), "%Y-%m-%d")
+    account_id = request.form.get('account')
+    description = request.form.get('description').strip()
 
     db_result = update_expense(expense_id, amount, category_id, date, account_id, description)
 
@@ -90,7 +90,7 @@ def delete_expense():
     from home_budget_app.db import delete_expense
     back = request.referrer
 
-    expense_id = request.form['expense_id']
+    expense_id = request.form.get('expense_id')
 
     db_result = delete_expense(expense_id)
 

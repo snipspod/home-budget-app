@@ -18,7 +18,6 @@ def create_user(name, email, password, password_confirm):
         'name': name,
         'created_at': datetime.now(),
         'updated_at': datetime.now(),
-        'status': 'active',
     }
 
     if password != password_confirm:
@@ -446,7 +445,7 @@ def authenticate_user(email, password):
         user = users_collection.find_one({'email': email})
 
         if user is not None:
-            if check_password_hash(user.get('password'), password) and user.get('status') == 'active':
+            if check_password_hash(user.get('password'), password):
                 cyclical_budget_update(email)
                 return {'result': 'success',
                         'user': parse_json(user),
@@ -506,9 +505,8 @@ def get_user_expenses(email, limit = 9999):
         expenses_collection = DB["Expenses"]
         
         expenses = expenses_collection.aggregate(
-            [{'$match': {'email': email}}, {'$limit': limit}, {'$sort': {'data_at': -1}}, {'$lookup': {'from': 'Categories', 'localField': 'category_id', 'foreignField': '_id', 'as': 'category'}}, {'$lookup': {'from': 'Accounts', 'localField': 'account_id', 'foreignField': '_id', 'as': 'account'}}, {'$project': {'amount': 1, 'date_at': 1, 'date_submitted': 1, 'description': 1, 'category_id': 1, 'category': {'$first': '$category.name'}, 'account_id': 1, 'account_name': {'$first': '$account.name'}}}]
+            [{'$match': {'email': email}}, {'$sort':{'date_at': -1}}, {'$limit': limit}, {'$lookup': {'from': 'Categories', 'localField': 'category_id', 'foreignField': '_id', 'as': 'category'}}, {'$lookup': {'from': 'Accounts', 'localField': 'account_id', 'foreignField': '_id', 'as': 'account'}}, {'$project': {'amount': 1, 'date_at': 1, 'date_submitted': 1, 'description': 1, 'category_id': 1, 'category': {'$first': '$category.name'}, 'account_id': 1, 'account_name': {'$first': '$account.name'}}}]
             )
-
         return parse_json(expenses)
     except Exception as e:
         return e
@@ -559,6 +557,7 @@ def get_historical_user_budgets(email):
                             category['spent'] = expense['sum']
                             # print(category['spent'])
                             budget['spent'] += expense['sum']
+        print(budgets)
 
         return parse_json(budgets)
     except Exception as e:
@@ -575,6 +574,7 @@ def get_user_statistics(email):
         today = datetime.now()
 
         member_from = users_collection.find_one({'email': email}, projection={'created_at': True})['created_at']
+        print(member_from)
 
         expense_count = expenses_collection.count_documents({'email': email})
 
@@ -595,7 +595,6 @@ def get_user_statistics(email):
         
         expense_avg = expenses_collection.aggregate([{'$match':{'date_at':{'$gte':month_start,'$lte':today}, 'email': email}},{'$group':{'_id':'$email','expense_sum':{'$sum':'$amount'}}},{'$project':{'_id':0,'email':'$_id','average_expense':{'$divide':['$expense_sum',{'$dayOfMonth':'$$NOW'}]}}}])
         expense_avg = round(parse_json(expense_avg)[0]['average_expense'],2)
-        
 
         return {
             'member_from': member_from,
@@ -660,24 +659,35 @@ def get_expense_sum_per_month(email):
 def get_budgets_realization(email):
     try: 
         DB = app.db_connection.home_budget_app
-        expenses_collection = DB['Budgets']
+        budgets_collection = DB['Budgets']
+        expenses_collection = DB['Expenses']
 
-        budgets_realization = expenses_collection.aggregate([{'$match':{'email':email}},{'$project':{'_id':0,'name':1,'realization':{'$round':[{'$divide':['$spent','$amount']},2]},'label':{'$concat':[{'$toString':'$spent'},' / ',{'$toString':'$amount'},' zł']},'budget_date':{'$dateToString':{'date':'$budget_month','format':'%Y-%m'}}}},{'$group':{'_id':'$budget_date','budgets':{'$addToSet':'$$ROOT'}}},{'$project':{'budgets':1,'date':'$_id','_id':0}}])
+        budgets = parse_json(budgets_collection.aggregate([{'$match':{'email':email}},{'$project':{'_id':0,'name':1,'assoc_categories':1,'amount': 1,'budget_date':{'$dateToString':{'date':'$budget_month','format':'%Y-%m'}}}},{'$group':{'_id':'$budget_date','budgets':{'$addToSet':'$$ROOT'}}},{'$project':{'budgets':1,'date':'$_id','_id':0}}]))
 
-        return parse_json(budgets_realization)
+        expenses = parse_json(expenses_collection.aggregate([{'$match':{'email':email}},{'$group':{'_id':{'year':{'$year':'$date_at'},'month':{'$month':'$date_at'},'category_id':'$category_id'},'sum':{'$sum':'$amount'}}},{'$project':{'category_id':'$_id.category_id','expense_date':{'$concat':[{'$toString':'$_id.year'},'-',{'$cond':[{'$lte':['$_id.month',9]},{'$concat':['0',{'$substr':['$_id.month',0,2]}]},{'$substr':['$_id.month',0,2]}]}]},'sum':1,'_id':0}}]))
 
+        for month in budgets:
+            for budget in month['budgets']:
+                budget['spent'] = 0
+                for category in budget['assoc_categories']:
+                    for expense in expenses:
+                        if ObjectId(category['category_id']['$oid']) == ObjectId(expense['category_id']['$oid']) and expense['expense_date'] == budget['budget_date']:
+                            budget['spent'] += expense['sum']
+                budget['label'] = f'{budget['spent']} / {budget['amount']} zł'
+                budget['realization'] = budget['spent']/budget['amount']
+
+        return parse_json(budgets)
     except Exception as e:
         return e
+
     
     
 
 def cyclical_budget_update(email):
     try:
-        DB = app.db_connection.home_budget_app
-        accounts_collection = DB["Accounts"]
+        accounts_collection = app.db_connection.home_budget_app["Accounts"]
 
-        accounts = accounts_collection.find({'email': email})
-        accounts = parse_json(accounts)
+        accounts = parse_json(accounts_collection.find({'email': email}))
 
         for account in accounts:
             income_date = datetime.strptime(account['next_income_date']['$date'], "%Y-%m-%dT%H:%M:%SZ")
@@ -689,4 +699,4 @@ def cyclical_budget_update(email):
                 accounts_collection.find_one_and_update({'email': email, 'name': name}, {'$inc': {'balance': income}, '$set': {'next_income_date': next_income_date}})
 
     except Exception as e:
-        print(e)
+        return e

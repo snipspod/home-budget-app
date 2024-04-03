@@ -24,6 +24,8 @@ def index():
         income_day = datetime.strptime(account['next_income_date']['$date'], "%Y-%m-%dT%H:%M:%SZ").day
         account['income_day'] = income_day
 
+    print(accounts)
+
     return render_template('accounts.html', accounts=accounts)
 
 @bp.route('/update-account', methods=('POST',))

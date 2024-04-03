@@ -1,12 +1,4 @@
-from flask import (
-    Blueprint,
-    flash,
-    g,
-    redirect,
-    render_template,
-    request,
-    url_for
-)
+from flask import Blueprint, flash, g, redirect, render_template, request
 
 from home_budget_app.auth import login_required
 
@@ -27,7 +19,7 @@ def delete_category():
     from home_budget_app.db import delete_category
     back = request.referrer
 
-    category_id = request.form['category_id']
+    category_id = request.form.get('category_id')
 
     db_result = delete_category(category_id)
 
@@ -40,8 +32,8 @@ def update_category():
     from home_budget_app.db import update_category
     back = request.referrer
 
-    category_id = request.form['category_id']
-    category_new = request.form['category_new'].strip()
+    category_id = request.form.get('category_id')
+    category_new = request.form.get('category_new').strip()
 
     db_result = update_category(category_id, category_new)
 

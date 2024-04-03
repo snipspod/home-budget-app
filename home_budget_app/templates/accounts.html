@@ -32,10 +32,15 @@
                                 <div class="card-header h5">
                                     {{ account['name'] }}
                                 </div>
-                                <div class="card-body">
-                                    <h6 class="fw-light">Aktualny stan:</h6>
-                                    <h5 class="text-center mb-3">{{ account['balance'] }}zł</h5>
-                                    <div class="row">
+                                <div class="card-body d-flex flex-column justify-content-center">
+                                    <div class="row mt-auto">
+                                        <h6 class="fw-light">Aktualny stan:</h6>
+                                        <h5 class="text-center mb-3">{{ account['balance'] }}zł</h5>
+                                        {% if account['income_active'] == true %}
+                                            <p class="fw-light">Wpływ <span class="fw-bold">{{account['income']}}zł</span> nastąpi <span class="fw-bold">{{account['next_income_date']['$date']|format_date_from_string}}</span>.</p>
+                                        {% endif %}
+                                    </div>
+                                    <div class="row mt-auto">
                                         <div class="col d-grid">
                                             <button type="button" data-bs-toggle="modal" data-bs-target="#modalUpdate" data-account="{{ account['_id']['$oid'] }}" data-balance="{{ account['balance'] }}" class="btn btn-outline-secondary btn-sm">Edytuj</button>
                                         </div>
